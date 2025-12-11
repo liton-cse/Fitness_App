@@ -1,8 +1,9 @@
+import { Model } from 'mongoose';
 import { USER_ROLES } from '../../../../enums/user';
 
 export interface ICoach {
   name: string;
-  role: USER_ROLES;
+  role?: USER_ROLES;
   email: string;
   password: string;
   image?: string;
@@ -15,3 +16,9 @@ export interface ICoach {
     expireAt: Date;
   };
 }
+
+export type CoachType = {
+  isExistCoachById(id: string): any;
+  isExistCoachByEmail(email: string): any;
+  isMatchPassword(password: string, hashPassword: string): boolean;
+} & Model<ICoach>;
