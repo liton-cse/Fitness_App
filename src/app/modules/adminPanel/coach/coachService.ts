@@ -201,14 +201,7 @@ export class CoachService {
         throw new ApiError(StatusCodes.NOT_FOUND, 'Coach not found');
       }
 
-      const coach = await this.model
-        .findByIdAndUpdate(
-          id,
-          { $set: { isActive: 'In-Active' } },
-          { new: true }
-        )
-        .select('-password -authentication')
-        .lean();
+      const coach = await this.model.findByIdAndDelete(id);
 
       return coach;
     } catch (error) {

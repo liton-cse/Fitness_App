@@ -16,55 +16,53 @@ import cryptoToken from '../../../util/cryptoToken';
 import generateOTP from '../../../util/generateOTP';
 import { ResetToken } from '../resetToken/resetToken.model';
 import { User } from '../user/user.model';
-import { AthleteModel } from '../adminPanel/athlete/athleteModel';
-import { AthleteService } from '../adminPanel/athlete/athleteservice';
-const athleteService = new AthleteService();
+
 //login
 const loginUserFromDB = async (payload: ILoginData) => {
   const { email, password } = payload;
-  const isExistAthlete = await AthleteModel.findOne({ email }).select(
-    '+password'
-  );
-  if (!isExistAthlete) {
-    throw new ApiError(StatusCodes.BAD_REQUEST, "Athlete doesn't exist!");
+  const isExistUser = await User.findOne({ email }).select('+password');
+  if (!isExistUser) {
+    throw new ApiError(StatusCodes.BAD_REQUEST, "User doesn't exist!");
+  }
+
+  //check verified and status
+  if (!isExistUser.verified) {
+    throw new ApiError(
+      StatusCodes.BAD_REQUEST,
+      'Please verify your account, then try to login again'
+    );
   }
 
   //check match password
   if (
     password &&
-    !(await AthleteModel.isMatchPassword(password, isExistAthlete.password))
+    !(await User.isMatchPassword(password, isExistUser.password))
   ) {
     throw new ApiError(StatusCodes.BAD_REQUEST, 'Password is incorrect!');
   }
 
-  //active status update
-  await athleteService.setActiveOnLogin(isExistAthlete._id.toString());
-
   //create token
   const createToken = jwtHelper.createToken(
-    {
-      id: isExistAthlete._id,
-      role: isExistAthlete.role,
-      email: isExistAthlete.email,
-    },
+    { id: isExistUser._id, role: isExistUser.role, email: isExistUser.email },
     config.jwt.jwt_secret as Secret,
     config.jwt.jwt_expire_in as string
   );
+
   return { createToken };
 };
 
 //forget password
 const forgetPasswordToDB = async (email: string) => {
-  const isExistAthlete = await AthleteModel.isExistAthleteByEmail(email);
-  if (!isExistAthlete) {
-    throw new ApiError(StatusCodes.BAD_REQUEST, "Athlete doesn't exist!");
+  const isExistUser = await User.isExistUserByEmail(email);
+  if (!isExistUser) {
+    throw new ApiError(StatusCodes.BAD_REQUEST, "User doesn't exist!");
   }
 
   //send mail
   const otp = generateOTP();
   const value = {
     otp,
-    email: isExistAthlete.email,
+    email: isExistUser.email,
   };
   const forgetPassword = emailTemplate.resetPassword(value);
   emailHelper.sendEmail(forgetPassword);
@@ -80,11 +78,9 @@ const forgetPasswordToDB = async (email: string) => {
 //verify email
 const verifyEmailToDB = async (payload: IVerifyEmail) => {
   const { email, oneTimeCode } = payload;
-  const isExistAthlete = await AthleteModel.findOne({ email }).select(
-    '+authentication'
-  );
-  if (!isExistAthlete) {
-    throw new ApiError(StatusCodes.BAD_REQUEST, "Athlete doesn't exist!");
+  const isExistUser = await User.findOne({ email }).select('+authentication');
+  if (!isExistUser) {
+    throw new ApiError(StatusCodes.BAD_REQUEST, "User doesn't exist!");
   }
 
   if (!oneTimeCode) {
@@ -94,12 +90,12 @@ const verifyEmailToDB = async (payload: IVerifyEmail) => {
     );
   }
 
-  if (isExistAthlete.authentication?.oneTimeCode !== oneTimeCode) {
+  if (isExistUser.authentication?.oneTimeCode !== oneTimeCode) {
     throw new ApiError(StatusCodes.BAD_REQUEST, 'You provided wrong otp');
   }
 
   const date = new Date();
-  if (date > isExistAthlete.authentication?.expireAt) {
+  if (date > isExistUser.authentication?.expireAt) {
     throw new ApiError(
       StatusCodes.BAD_REQUEST,
       'Otp already expired, Please try again'
@@ -109,15 +105,15 @@ const verifyEmailToDB = async (payload: IVerifyEmail) => {
   let message;
   let data;
 
-  if (!isExistAthlete.verified) {
-    await AthleteModel.findOneAndUpdate(
-      { _id: isExistAthlete._id },
+  if (!isExistUser.verified) {
+    await User.findOneAndUpdate(
+      { _id: isExistUser._id },
       { verified: true, authentication: { oneTimeCode: null, expireAt: null } }
     );
     message = 'Email verify successfully';
   } else {
-    await AthleteModel.findOneAndUpdate(
-      { _id: isExistAthlete._id },
+    await User.findOneAndUpdate(
+      { _id: isExistUser._id },
       {
         authentication: {
           isResetPassword: true,
@@ -130,7 +126,7 @@ const verifyEmailToDB = async (payload: IVerifyEmail) => {
     //create token ;
     const createToken = cryptoToken();
     await ResetToken.create({
-      user: isExistAthlete._id,
+      user: isExistUser._id,
       token: createToken,
       expireAt: new Date(Date.now() + 5 * 60000),
     });

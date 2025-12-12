@@ -1,10 +1,10 @@
 import express from 'express';
 import { USER_ROLES } from '../../../../enums/user';
-import { CoachAuthController } from './coachAuthController';
+import { AuthleteController } from './athleteAuthController';
 import auth from '../../../middlewares/auth';
 
 const router = express.Router();
-const authController = new CoachAuthController();
+const authController = new AuthleteController();
 
 // Public routes
 router.post('/login', authController.login);
@@ -18,16 +18,20 @@ router.post('/request-verification', authController.requestVerification);
 router.post('/reset-password/:token', authController.resetPassword);
 
 // Protected routes (require authentication)
-router.get('/profile', auth(USER_ROLES.COACH), authController.getProfile);
+router.get('/profile', auth(USER_ROLES.ATHLETE), authController.getProfile);
 
-router.patch('/profile', auth(USER_ROLES.COACH), authController.updateProfile);
+router.patch(
+  '/profile',
+  auth(USER_ROLES.ATHLETE),
+  authController.updateProfile
+);
 
 router.patch(
   '/change-password',
-  auth(USER_ROLES.COACH),
+  auth(USER_ROLES.ATHLETE),
   authController.changePassword
 );
 
-router.post('/logout', auth(USER_ROLES.COACH), authController.logout);
+router.post('/logout', auth(USER_ROLES.ATHLETE), authController.logout);
 
-export const CoachAuthRoutes = router;
+export const AthleteAuthRoutes = router;

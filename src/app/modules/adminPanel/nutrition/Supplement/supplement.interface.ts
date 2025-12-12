@@ -1,0 +1,9 @@
+export interface ISupplementItem {
+  name: string;
+  brand: string;
+  dosage: string;
+  frequency: string;
+  time: string;
+  purpose: string;
+  note?: string;
+}

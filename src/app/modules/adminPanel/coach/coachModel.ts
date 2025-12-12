@@ -33,7 +33,7 @@ const coachSchema = new Schema<ICoach, CoachType>(
     },
     image: {
       type: String,
-      default: null,
+      default: 'https://i.ibb.co/z5YHLV9/profile.png',
     },
     verified: {
       type: Boolean,
@@ -103,10 +103,6 @@ coachSchema.pre('save', async function () {
     Number(config.bcrypt_salt_rounds)
   );
 });
-
-// Index for better query performance
-coachSchema.index({ email: 1 }, { unique: true });
-coachSchema.index({ isActive: 1 });
 
 export const CoachModel = mongoose.model<ICoach, CoachType>(
   'Coach',

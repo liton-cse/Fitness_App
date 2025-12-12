@@ -55,7 +55,11 @@ router.patch(
  * @desc    Delete coach (soft delete)
  * @access  Private (Admin only)
  */
-router.delete('/:id', auth(USER_ROLES.SUPER_ADMIN), coachController.delete);
+router.delete(
+  '/:id',
+  auth(USER_ROLES.SUPER_ADMIN, USER_ROLES.COACH),
+  coachController.delete
+);
 
 /**
  * @route   PATCH /api/v1/coaches/:id/verify

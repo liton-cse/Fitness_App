@@ -3,6 +3,13 @@ import { AuthRoutes } from '../app/modules/auth/auth.route';
 import { UserRoutes } from '../app/modules/user/user.route';
 import { AthleteRouter } from '../app/modules/adminPanel/athlete/athleteRoute';
 import { coachRoutes } from '../app/modules/adminPanel/coach/coachroute';
+import { CoachAuthRoutes } from '../app/modules/adminPanel/coach/coachAuthRoute';
+import { ExerciseRouter } from '../app/modules/adminPanel/exercise/exercise.route';
+import { AthleteAuthRoutes } from '../app/modules/adminPanel/athlete/athleteAuthRoute';
+import { FoodItemRoutes } from '../app/modules/adminPanel/nutrition/Food/food.routes';
+import { SupplementItemRoute } from '../app/modules/adminPanel/nutrition/Supplement/supplement.routes';
+import { PEDInfoRoutes } from '../app/modules/adminPanel/nutrition/ped/ped.routes';
+import { ShowManagementRoutes } from '../app/modules/coachPanel/showManagement/management.route';
 const router = express.Router();
 
 const apiRoutes = [
@@ -15,12 +22,40 @@ const apiRoutes = [
     route: AuthRoutes,
   },
   {
+    path: '/auth/coach',
+    route: CoachAuthRoutes,
+  },
+  {
     path: '/coach',
     route: coachRoutes,
   },
   {
+    path: '/auth/athlete',
+    route: AthleteAuthRoutes,
+  },
+  {
     path: '/athlete',
     route: AthleteRouter,
+  },
+  {
+    path: '/exercise',
+    route: ExerciseRouter,
+  },
+  {
+    path: '/food/nutrition',
+    route: FoodItemRoutes,
+  },
+  {
+    path: '/supplement/nutrition',
+    route: SupplementItemRoute,
+  },
+  {
+    path: '/ped/nutrition',
+    route: PEDInfoRoutes,
+  },
+  {
+    path: '/show/management',
+    route: ShowManagementRoutes,
   },
 ];
 

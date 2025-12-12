@@ -28,6 +28,7 @@ const fileUploadHandler = () => {
           uploadDir = path.join(baseUploadDir, 'image');
           break;
         case 'media':
+        case 'vedio':
           uploadDir = path.join(baseUploadDir, 'media');
           break;
         case 'doc':
@@ -70,7 +71,7 @@ const fileUploadHandler = () => {
           )
         );
       }
-    } else if (file.fieldname === 'media') {
+    } else if (file.fieldname === 'media' || file.fieldname === 'vedio') {
       if (file.mimetype === 'video/mp4' || file.mimetype === 'audio/mpeg') {
         cb(null, true);
       } else {
@@ -99,6 +100,7 @@ const fileUploadHandler = () => {
     { name: 'image', maxCount: 3 },
     { name: 'media', maxCount: 3 },
     { name: 'doc', maxCount: 3 },
+    { name: 'vedio', maxCount: 3 },
   ]);
   return upload;
 };

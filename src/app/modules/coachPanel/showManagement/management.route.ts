@@ -1,0 +1,16 @@
+import express from 'express';
+import { ShowManagementController } from './mangement.controller';
+import auth from '../../../middlewares/auth';
+import { USER_ROLES } from '../../../../enums/user';
+
+const router = express.Router();
+const showController = new ShowManagementController();
+
+// CRUD routes
+router.post('/', auth(USER_ROLES.SUPER_ADMIN), showController.addShow);
+router.get('/', showController.getAllShows);
+router.get('/:id', showController.getShowById);
+router.patch('/:id', auth(USER_ROLES.SUPER_ADMIN), showController.updateShow);
+router.delete('/:id', auth(USER_ROLES.SUPER_ADMIN), showController.deleteShow);
+
+export const ShowManagementRoutes = router;
