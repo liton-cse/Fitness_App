@@ -1,5 +1,6 @@
-import { Schema, model, Document, Query } from 'mongoose';
+import { Schema, model } from 'mongoose';
 import { IShowManagement } from './management.interface';
+
 // Calculate countdown in days
 const calculateCountdown = (dateStr: string) => {
   const showDate = new Date(dateStr);
@@ -15,30 +16,18 @@ const ShowManagementSchema = new Schema<IShowManagement>(
     division: { type: String, required: true },
     date: { type: String, required: true },
     location: { type: String, required: true },
-    countdown: { type: Number, default: 0 },
   },
   {
     timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
   }
 );
 
-// Pre-save hook
-ShowManagementSchema.pre<IShowManagement>('save', function () {
-  this.countdown = calculateCountdown(this.date);
+// Virtual countdown (auto-updates daily)
+ShowManagementSchema.virtual('countdown').get(function () {
+  return calculateCountdown(this.date);
 });
-
-// Pre-findOneAndUpdate hook
-ShowManagementSchema.pre<Query<IShowManagement, IShowManagement>>(
-  'findOneAndUpdate',
-  function () {
-    const update = this.getUpdate() as Record<string, any> | undefined;
-
-    if (update && typeof update === 'object' && update.date) {
-      update.countdown = calculateCountdown(update.date);
-      this.set(update);
-    }
-  }
-);
 
 export const ShowManagementModel = model<IShowManagement>(
   'ShowManagement',

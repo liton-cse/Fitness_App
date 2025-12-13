@@ -10,7 +10,7 @@ const showController = new ShowManagementController();
 router.post('/', auth(USER_ROLES.SUPER_ADMIN), showController.addShow);
 router.get('/', showController.getAllShows);
 router.get('/:id', showController.getShowById);
-router.patch('/:id', auth(USER_ROLES.SUPER_ADMIN), showController.updateShow);
+router.put('/:id', auth(USER_ROLES.SUPER_ADMIN), showController.updateShow);
 router.delete('/:id', auth(USER_ROLES.SUPER_ADMIN), showController.deleteShow);
 
 export const ShowManagementRoutes = router;
