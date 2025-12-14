@@ -36,7 +36,12 @@ router.get(
  * @desc    Create a new coach
  * @access  Public (for registration) or Private (Admin)
  */
-router.post('/', fileUploadHandler(), coachController.create);
+router.post(
+  '/',
+  auth(USER_ROLES.SUPER_ADMIN),
+  fileUploadHandler(),
+  coachController.create
+);
 
 /**
  * @route   PATCH /api/v1/coaches/:id

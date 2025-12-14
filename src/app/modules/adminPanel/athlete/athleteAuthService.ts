@@ -38,11 +38,12 @@ export class AthleteAuthService {
       throw new ApiError(StatusCodes.BAD_REQUEST, 'Password is incorrect!');
     }
 
-    if (isExistAthlete.isActive === 'In-Active') {
-      throw new ApiError(StatusCodes.FORBIDDEN, 'Your account is deactivated');
-    }
+    // if (isExistAthlete.isActive === 'In-Active') {
+    //   throw new ApiError(StatusCodes.FORBIDDEN, 'Your account is deactivated');
+    // }
 
     await AthleteModel.findByIdAndUpdate(isExistAthlete._id, {
+      isActive: 'Active',
       lastActive: new Date(),
     });
 
@@ -51,6 +52,7 @@ export class AthleteAuthService {
         id: isExistAthlete._id,
         email: isExistAthlete.email,
         name: isExistAthlete.name,
+        role: isExistAthlete.role,
       },
       config.jwt.jwt_secret as Secret,
       config.jwt.jwt_expire_in as string
@@ -61,7 +63,6 @@ export class AthleteAuthService {
 
     return {
       token: createToken,
-      athlete: athleteData,
     };
   }
 

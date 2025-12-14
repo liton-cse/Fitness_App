@@ -10,6 +10,8 @@ import { FoodItemRoutes } from '../app/modules/adminPanel/nutrition/Food/food.ro
 import { SupplementItemRoute } from '../app/modules/adminPanel/nutrition/Supplement/supplement.routes';
 import { PEDInfoRoutes } from '../app/modules/adminPanel/nutrition/ped/ped.routes';
 import { ShowManagementRoutes } from '../app/modules/coachPanel/showManagement/management.route';
+import { DailyTrackingRoutes } from '../app/modules/appAthlete/dailyTracking/daily.tracking.routes';
+import { CheckInRoter } from '../app/modules/appAthlete/checkIn/checkin.routes';
 const router = express.Router();
 
 const apiRoutes = [
@@ -56,6 +58,14 @@ const apiRoutes = [
   {
     path: '/show/management',
     route: ShowManagementRoutes,
+  },
+  {
+    path: '/daily/tracking',
+    route: DailyTrackingRoutes,
+  },
+  {
+    path: '/check-in',
+    route: CheckInRoter,
   },
 ];
 

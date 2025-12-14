@@ -49,7 +49,7 @@ const athleteSchema = new Schema<IAthlete, AthleteType>(
     goal: { type: String, required: true },
     verified: {
       type: Boolean,
-      default: false,
+      default: true,
     },
     lastCheckIn: { type: Date },
     isActive: {

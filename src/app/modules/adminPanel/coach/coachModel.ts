@@ -42,7 +42,7 @@ const coachSchema = new Schema<ICoach, CoachType>(
     isActive: {
       type: String,
       enum: ['Active', 'In-Active'],
-      default: 'Active',
+      default: 'In-Active',
     },
     lastActive: {
       type: Date,
