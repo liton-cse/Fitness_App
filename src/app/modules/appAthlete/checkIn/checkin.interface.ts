@@ -35,6 +35,6 @@ export interface ICheckInInfo {
   training: Training;
   trainingFeedback: string;
   dailyNote: string;
-  images: string[];
-  videos: string[];
+  image: string[];
+  video: string[];
 }

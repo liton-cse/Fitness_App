@@ -48,8 +48,8 @@ const CheckInSchema = new Schema<ICheckInInfo>(
     training: { type: TrainingSchema, required: true },
     trainingFeedback: { type: String, required: true },
     dailyNote: { type: String, required: true },
-    images: { type: [String], default: [] },
-    videos: { type: [String], default: [] },
+    image: { type: [String], default: [] },
+    video: { type: [String], default: [] },
   },
   { timestamps: true }
 );

@@ -4,6 +4,7 @@ import catchAsync from '../../../../shared/catchAsync';
 import sendResponse from '../../../../shared/sendResponse';
 import { CheckInService } from './checkin.service';
 import { Types } from 'mongoose';
+import { getMultipleFilesPath } from '../../../../shared/getFilePath';
 
 const checkInService = new CheckInService();
 
@@ -14,7 +15,15 @@ export class CheckInController {
    */
   createCheckIn = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
-      const payload = { ...req.body, userId: req.user.id };
+      const images = getMultipleFilesPath(req.files, 'image');
+      const videos = getMultipleFilesPath(req.files, 'video');
+      const payload = {
+        ...req.body,
+        userId: req.user.id,
+        image: images,
+        video: videos,
+      };
+      console.log(payload);
       const result = await checkInService.createCheckIn(payload);
 
       sendResponse(res, {
