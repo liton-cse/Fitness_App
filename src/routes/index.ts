@@ -12,6 +12,7 @@ import { PEDInfoRoutes } from '../app/modules/adminPanel/nutrition/ped/ped.route
 import { ShowManagementRoutes } from '../app/modules/coachPanel/showManagement/management.route';
 import { DailyTrackingRoutes } from '../app/modules/appAthlete/dailyTracking/daily.tracking.routes';
 import { CheckInRoter } from '../app/modules/appAthlete/checkIn/checkin.routes';
+import { CoachNutritionRouter } from '../app/modules/coachPanel/athletNutrition/athlete.nutrition.routes';
 const router = express.Router();
 
 const apiRoutes = [
@@ -66,6 +67,10 @@ const apiRoutes = [
   {
     path: '/check-in',
     route: CheckInRoter,
+  },
+  {
+    path: '/coach/nutrition',
+    route: CoachNutritionRouter,
   },
 ];
 

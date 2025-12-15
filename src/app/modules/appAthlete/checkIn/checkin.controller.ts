@@ -23,7 +23,6 @@ export class CheckInController {
         image: images,
         video: videos,
       };
-      console.log(payload);
       const result = await checkInService.createCheckIn(payload);
 
       sendResponse(res, {
@@ -41,7 +40,14 @@ export class CheckInController {
    */
   getAllCheckIns = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
-      const result = await checkInService.getCheckInsByUser(req.user.id);
+      const page = Number(req.query.page) || 1;
+      const limit = Number(req.query.limit) || 1;
+
+      const result = await checkInService.getCheckInsByUser(
+        req.user.id,
+        page,
+        limit
+      );
 
       sendResponse(res, {
         success: true,
@@ -51,6 +57,22 @@ export class CheckInController {
       });
     }
   );
+
+  /**
+   * Returns next check-in date based on athlete's check-in day
+   */
+  getNextCheckInDate = catchAsync(async (req: Request, res: Response) => {
+    const userId = req.user.id;
+
+    const result = await checkInService.getNextCheckInInfo(userId);
+
+    sendResponse(res, {
+      success: true,
+      statusCode: StatusCodes.OK,
+      message: 'Next check-in date calculated successfully',
+      data: result,
+    });
+  });
 
   /**
    * Get a single Check-in by ID

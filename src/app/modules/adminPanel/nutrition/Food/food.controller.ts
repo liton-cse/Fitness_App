@@ -30,11 +30,12 @@ export class FoodItemController {
    */
   getAllFoodItems = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
-      const { search, page, limit } = req.query;
+      const { search, page, limit, filter } = req.query;
       const result = await foodService.getAllFoodItems(
         search as string,
         Number(page) || 1,
-        Number(limit) || 10
+        Number(limit) || 10,
+        filter as string
       );
 
       sendResponse(res, {

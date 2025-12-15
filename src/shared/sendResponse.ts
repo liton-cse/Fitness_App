@@ -19,6 +19,7 @@ const sendResponse = <T>(res: Response, data: IData<T>) => {
     message: data.message,
     pagination: data.pagination,
     data: data.data,
+    meta: data.pagination,
   };
   res.status(data.statusCode).json(resData);
 };

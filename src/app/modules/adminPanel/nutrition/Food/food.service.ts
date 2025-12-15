@@ -13,11 +13,19 @@ export class FoodItemService {
   /**
    * Get all food items with pagination and search by name
    */
-  async getAllFoodItems(search?: string, page = 1, limit = 10) {
+  async getAllFoodItems(
+    search?: string,
+    page = 1,
+    limit = 10,
+    filter?: string
+  ) {
     const query: any = {};
 
     if (search) {
-      query.name = { $regex: search, $options: 'i' };
+      query.category = { $regex: search, $options: 'i' };
+    }
+    if (filter) {
+      query.name = { $regex: filter, $options: 'i' };
     }
 
     const skip = (page - 1) * limit;

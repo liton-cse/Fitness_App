@@ -65,6 +65,8 @@ export interface DailyTracking {
   ped: Medication;
   bloodPressure: BloodPressure;
   dailyNotes: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 // =====================

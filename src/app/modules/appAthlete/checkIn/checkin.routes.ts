@@ -21,12 +21,17 @@ router.get(
   auth(USER_ROLES.ATHLETE, USER_ROLES.SUPER_ADMIN),
   controller.getAllCheckIns
 );
+router.get(
+  '/date',
+  auth(USER_ROLES.ATHLETE, USER_ROLES.SUPER_ADMIN),
+  controller.getNextCheckInDate
+);
 
 // Get a single Check-in by ID
 router.get('/:id', controller.getCheckInById);
 
 // Update a Check-in by ID
-router.patch('/:id', auth(USER_ROLES.SUPER_ADMIN), controller.updateCheckIn);
+router.patch('/:id', auth(USER_ROLES.COACH), controller.updateCheckIn);
 
 // Delete a Check-in by ID
 router.delete('/:id', auth(USER_ROLES.SUPER_ADMIN), controller.deleteCheckIn);
