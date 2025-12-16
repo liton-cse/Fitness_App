@@ -40,6 +40,7 @@ const athleteSchema = new Schema<IAthlete, AthleteType>(
     },
 
     age: { type: Number, required: true },
+    water: { type: Number, required: true },
 
     status: { type: String, enum: ['Natural', 'Enhanced'], required: true },
 

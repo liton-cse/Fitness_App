@@ -11,6 +11,7 @@ export interface IAthlete {
   phase: string;
   weight: number;
   height: number;
+  water: number;
   image?: string;
   age: number;
   status: 'Natural' | 'Enhanced';

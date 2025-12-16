@@ -13,6 +13,7 @@ import { ShowManagementRoutes } from '../app/modules/coachPanel/showManagement/m
 import { DailyTrackingRoutes } from '../app/modules/appAthlete/dailyTracking/daily.tracking.routes';
 import { CheckInRoter } from '../app/modules/appAthlete/checkIn/checkin.routes';
 import { CoachNutritionRouter } from '../app/modules/coachPanel/athletNutrition/athlete.nutrition.routes';
+import { DailyTrackingMealRoutes } from '../app/modules/appAthlete/trackMeal/track.meal.route';
 const router = express.Router();
 
 const apiRoutes = [
@@ -71,6 +72,10 @@ const apiRoutes = [
   {
     path: '/coach/nutrition',
     route: CoachNutritionRouter,
+  },
+  {
+    path: '/track/meal',
+    route: DailyTrackingMealRoutes,
   },
 ];
 
