@@ -16,6 +16,7 @@ import { emailTemplate } from '../../../../shared/emailTemplate';
 import { emailHelper } from '../../../../helpers/emailHelper';
 import cryptoToken from '../../../../util/cryptoToken';
 import { ResetToken } from '../../resetToken/resetToken.model';
+import { NotificationService } from '../../notification/notification.service';
 
 export class CoachAuthService {
   /**
@@ -24,7 +25,7 @@ export class CoachAuthService {
    * @returns JWT token
    */
   async loginCoachFromDB(payload: ILoginData) {
-    const { email, password } = payload;
+    const { email, password, fcmToken } = payload;
 
     // Find coach by email with password field
     const isExistCoach = await CoachModel.findOne({ email }).select(
@@ -32,6 +33,10 @@ export class CoachAuthService {
     );
     if (!isExistCoach) {
       throw new ApiError(StatusCodes.BAD_REQUEST, "Coach doesn't exist!");
+    }
+
+    if (!fcmToken && isExistCoach.role !== 'COACH') {
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'FCM token Needed!');
     }
 
     // Check if password matches
@@ -70,7 +75,16 @@ export class CoachAuthService {
       authentication,
       ...coachData
     } = isExistCoach.toObject();
-
+    // 2️⃣ Save FCM token if provided
+    if (fcmToken && isExistCoach.role !== 'SUPER_ADMIN') {
+      console.log('Notification running');
+      await NotificationService.saveFCMToken(
+        isExistCoach._id.toString(),
+        isExistCoach.name,
+        isExistCoach.email,
+        fcmToken
+      );
+    }
     return {
       token: createToken,
       coach: coachData,

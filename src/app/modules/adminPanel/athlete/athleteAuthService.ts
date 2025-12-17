@@ -16,13 +16,14 @@ import { emailHelper } from '../../../../helpers/emailHelper';
 import cryptoToken from '../../../../util/cryptoToken';
 import { ResetToken } from '../../resetToken/resetToken.model';
 import { AthleteModel } from './athleteModel';
+import { NotificationService } from '../../notification/notification.service';
 
 export class AthleteAuthService {
   /**
    * Login athlete with email and password
    */
   async loginAthleteFromDB(payload: ILoginData) {
-    const { email, password } = payload;
+    const { email, password, fcmToken } = payload;
 
     const isExistAthlete = await AthleteModel.findOne({ email }).select(
       '+password'
@@ -31,6 +32,10 @@ export class AthleteAuthService {
       throw new ApiError(StatusCodes.BAD_REQUEST, "Athlete doesn't exist!");
     }
 
+    // if (!fcmToken && isExistAthlete.role !== 'ATHLETE') {
+    //   throw new ApiError(StatusCodes.BAD_REQUEST, 'FCM token Needed!');
+    // }
+
     if (
       password &&
       !(await AthleteModel.isMatchPassword(password, isExistAthlete.password))
@@ -38,9 +43,9 @@ export class AthleteAuthService {
       throw new ApiError(StatusCodes.BAD_REQUEST, 'Password is incorrect!');
     }
 
-    // if (isExistAthlete.isActive === 'In-Active') {
-    //   throw new ApiError(StatusCodes.FORBIDDEN, 'Your account is deactivated');
-    // }
+    if (isExistAthlete.isActive === 'In-Active') {
+      throw new ApiError(StatusCodes.FORBIDDEN, 'Your account is deactivated');
+    }
 
     await AthleteModel.findByIdAndUpdate(isExistAthlete._id, {
       isActive: 'Active',
@@ -60,6 +65,17 @@ export class AthleteAuthService {
 
     const { password: athletePassword, ...athleteData } =
       isExistAthlete.toObject();
+
+    // 2️⃣ Save FCM token if provided
+    if (fcmToken && isExistAthlete.role !== 'SUPER_ADMIN') {
+      console.log('Notification running');
+      await NotificationService.saveFCMToken(
+        isExistAthlete._id.toString(),
+        isExistAthlete.name,
+        isExistAthlete.email,
+        fcmToken
+      );
+    }
 
     return {
       token: createToken,

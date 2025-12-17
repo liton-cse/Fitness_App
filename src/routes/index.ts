@@ -14,6 +14,9 @@ import { DailyTrackingRoutes } from '../app/modules/appAthlete/dailyTracking/dai
 import { CheckInRoter } from '../app/modules/appAthlete/checkIn/checkin.routes';
 import { CoachNutritionRouter } from '../app/modules/coachPanel/athletNutrition/athlete.nutrition.routes';
 import { DailyTrackingMealRoutes } from '../app/modules/appAthlete/trackMeal/track.meal.route';
+import { TrainingPlanRoutes } from '../app/modules/coachPanel/trainingPlan/trainingplan.routes';
+import { TrainingPushDayHistoryRoutes } from '../app/modules/appAthlete/trainingPlanHistory/trainigplan.history.route';
+import { TrainingPlanSpliteRoutes } from '../app/modules/coachPanel/trainingSplite/training.splite.route';
 const router = express.Router();
 
 const apiRoutes = [
@@ -76,6 +79,18 @@ const apiRoutes = [
   {
     path: '/track/meal',
     route: DailyTrackingMealRoutes,
+  },
+  {
+    path: '/training/plan',
+    route: TrainingPlanRoutes,
+  },
+  {
+    path: '/training/history',
+    route: TrainingPushDayHistoryRoutes,
+  },
+  {
+    path: '/training/splite',
+    route: TrainingPlanSpliteRoutes,
   },
 ];
 

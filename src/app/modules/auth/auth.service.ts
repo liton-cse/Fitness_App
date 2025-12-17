@@ -16,13 +16,17 @@ import cryptoToken from '../../../util/cryptoToken';
 import generateOTP from '../../../util/generateOTP';
 import { ResetToken } from '../resetToken/resetToken.model';
 import { User } from '../user/user.model';
+import { NotificationService } from '../notification/notification.service';
 
 //login
 const loginUserFromDB = async (payload: ILoginData) => {
-  const { email, password } = payload;
+  const { email, password, fcmToken } = payload;
   const isExistUser = await User.findOne({ email }).select('+password');
   if (!isExistUser) {
     throw new ApiError(StatusCodes.BAD_REQUEST, "User doesn't exist!");
+  }
+  if (!fcmToken && isExistUser.role !== 'SUPER_ADMIN') {
+    throw new ApiError(StatusCodes.BAD_REQUEST, 'FCM token Needed!');
   }
 
   //check verified and status
@@ -47,7 +51,16 @@ const loginUserFromDB = async (payload: ILoginData) => {
     config.jwt.jwt_secret as Secret,
     config.jwt.jwt_expire_in as string
   );
-
+  // 2️⃣ Save FCM token if provided
+  if (fcmToken && isExistUser.role !== 'SUPER_ADMIN') {
+    console.log('Notification running');
+    await NotificationService.saveFCMToken(
+      isExistUser._id.toString(),
+      isExistUser.name,
+      isExistUser.email,
+      fcmToken
+    );
+  }
   return { createToken };
 };
 
