@@ -1,7 +1,10 @@
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { USER_ROLES } from '../../../../enums/user';
 
 export interface IAthlete {
+  _id: Types.ObjectId;
+  coachId: Types.ObjectId;
+  userModel: 'Coach' | 'User';
   name: string;
   email: string;
   role: USER_ROLES;
@@ -19,10 +22,12 @@ export interface IAthlete {
   restDaySteps: number;
   checkInDay: string;
   goal: string;
+  fcmToken?: string;
   verified: boolean;
   lastCheckIn?: Date;
   isActive: 'Active' | 'In-Active';
   lastActive?: Date;
+  notifiedThisWeek: boolean;
   authentication?: {
     isResetPassword: boolean;
     oneTimeCode: number;

@@ -15,6 +15,7 @@ export interface ICoach {
     oneTimeCode: number;
     expireAt: Date;
   };
+  fcmToken?: string;
 }
 
 export type CoachType = {

@@ -39,3 +39,10 @@ export const NotificationHistoryModel = model(
   'Notification_History',
   notificationHistorySchema
 );
+
+/** Get athletes whose checkDay matches today and haven't been notified */
+export const getAthletesNotification = async (
+  today: string
+): Promise<INotification[]> => {
+  return await NotificationModel.find();
+};

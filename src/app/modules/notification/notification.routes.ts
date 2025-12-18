@@ -14,13 +14,17 @@ router.get(
 );
 router.get('/admin', NotificationController.getAllNotificationByAdmin);
 //send notification
-router.post('/send', NotificationController.pushNotification);
+router.post(
+  '/send',
+  auth(USER_ROLES.COACH, USER_ROLES.SUPER_ADMIN),
+  NotificationController.pushNotification
+);
 
 router.patch('/read/:notificationId', NotificationController.readNotification);
 
 router.get(
   '/unread',
-  auth(USER_ROLES.COACH, USER_ROLES.ATHLETE, USER_ROLES.SUPER_ADMIN),
+  auth(USER_ROLES.COACH, USER_ROLES.SUPER_ADMIN),
   NotificationController.unreadNotifications
 );
 

@@ -8,6 +8,8 @@ import {
   humanReadableFormate,
 } from '../../../../util/calculate.date';
 import { DailyTrackingModel } from '../dailyTracking/daily.tracking.model';
+import { CoachModel } from '../../adminPanel/coach/coachModel';
+import { sendCheckingNotification } from '../../notification/notification.service';
 
 export class CheckInService {
   /**
@@ -16,7 +18,34 @@ export class CheckInService {
    * @returns created CheckIn document
    */
   async createCheckIn(payload: Partial<ICheckInInfo>): Promise<ICheckInInfo> {
+    // 1. Create check-in first
     const result = await CheckInModel.create(payload);
+
+    // 2. Get athlete's coachId (only required field)
+    const athlete = await AthleteModel.findById(payload.userId)
+      .select('coachId')
+      .lean();
+
+    if (!athlete?.coachId) return result;
+
+    // 3. Get coach notification data
+    const coach = await CoachModel.findById(athlete.coachId)
+      .select('fcmToken name')
+      .lean();
+
+    if (!coach?.fcmToken) return result;
+
+    // 4. Send notification
+    const title = 'Check-in completed';
+    const description = `${coach.name}, an athlete has completed his check-in.Please review it.`;
+
+    await sendCheckingNotification(
+      title,
+      description,
+      coach.fcmToken,
+      athlete.coachId.toString()
+    );
+
     return result;
   }
 

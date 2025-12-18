@@ -6,7 +6,6 @@ export interface IExercise {
   sets: string;
   rep: string;
   range: string;
-  comment: string;
 }
 export interface ITrainingPlan extends Document {
   userId: string;
@@ -14,4 +13,5 @@ export interface ITrainingPlan extends Document {
   traingPlanName: string;
   exercise: IExercise[];
   dificulty: string;
+  comment: string;
 }

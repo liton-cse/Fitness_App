@@ -54,12 +54,8 @@ const loginUserFromDB = async (payload: ILoginData) => {
   // 2️⃣ Save FCM token if provided
   if (fcmToken && isExistUser.role !== 'SUPER_ADMIN') {
     console.log('Notification running');
-    await NotificationService.saveFCMToken(
-      isExistUser._id.toString(),
-      isExistUser.name,
-      isExistUser.email,
-      fcmToken
-    );
+    isExistUser.fcmToken = fcmToken;
+    await isExistUser.save();
   }
   return { createToken };
 };

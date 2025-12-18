@@ -32,7 +32,7 @@ export class AthleteAuthService {
       throw new ApiError(StatusCodes.BAD_REQUEST, "Athlete doesn't exist!");
     }
 
-    // if (!fcmToken && isExistAthlete.role !== 'ATHLETE') {
+    // if (!fcmToken) {
     //   throw new ApiError(StatusCodes.BAD_REQUEST, 'FCM token Needed!');
     // }
 
@@ -67,14 +67,10 @@ export class AthleteAuthService {
       isExistAthlete.toObject();
 
     // 2️⃣ Save FCM token if provided
-    if (fcmToken && isExistAthlete.role !== 'SUPER_ADMIN') {
+    if (fcmToken && isExistAthlete.role == 'ATHLETE') {
       console.log('Notification running');
-      await NotificationService.saveFCMToken(
-        isExistAthlete._id.toString(),
-        isExistAthlete.name,
-        isExistAthlete.email,
-        fcmToken
-      );
+      isExistAthlete.fcmToken = fcmToken;
+      await isExistAthlete.save();
     }
 
     return {

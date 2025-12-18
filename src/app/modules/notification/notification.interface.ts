@@ -2,7 +2,7 @@ import { Document, Types, Model } from 'mongoose';
 import admin from 'firebase-admin';
 export interface INotification extends Document {
   userId: Types.ObjectId;
-  userModel: 'Athlete' | 'Coach';
+  userModel: 'Athlete' | 'Coach' | 'User';
   email: string;
   username: string;
   fcmToken: string;

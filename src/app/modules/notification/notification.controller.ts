@@ -2,7 +2,11 @@ import catchAsync from '../../../shared/catchAsync';
 import { Request, Response, NextFunction } from 'express';
 import sendResponse from '../../../shared/sendResponse';
 import { StatusCodes } from 'http-status-codes';
-import { NotificationService } from './notification.service';
+import {
+  NotificationService,
+  sendPushNotification,
+} from './notification.service';
+import { CoachModel } from '../adminPanel/coach/coachModel';
 
 // Save or update FCM token
 const saveToken = catchAsync(
@@ -37,39 +41,39 @@ const saveToken = catchAsync(
   }
 );
 
-// Send push notification
-const pushNotification = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      // const userId = req.user.id;
-      const { title, description } = req.body;
+// Send push notification only for check-in complerted.
+const pushNotification = catchAsync(async (req: Request, res: Response) => {
+  const userId = req.user.id;
 
-      if (!title || !description) {
-        return sendResponse(res, {
-          success: false,
-          statusCode: StatusCodes.BAD_REQUEST,
-          message: 'title, and description are required',
-        });
-      }
+  const coach = await CoachModel.findById(userId).select('fcmToken name');
 
-      const result = await NotificationService.sendCustomNotification(
-        title,
-        description
-      );
-
-      sendResponse(res, {
-        success: result.success,
-        statusCode: StatusCodes.OK,
-        message: result.success
-          ? 'Notification sent successfully'
-          : result.message || 'Failed to send notification',
-        data: result.response,
-      });
-    } catch (err) {
-      next(err);
-    }
+  if (!coach?.fcmToken) {
+    return sendResponse(res, {
+      success: false,
+      statusCode: StatusCodes.BAD_REQUEST,
+      message: 'FCM token not found',
+    });
   }
-);
+
+  const title = 'Check-in completed';
+  const description = `${coach.name}, an athlete has completed his check-in. Please review it.`;
+
+  const payload = {
+    title,
+    description,
+  };
+
+  const result = await sendPushNotification(coach.fcmToken, payload, userId);
+
+  sendResponse(res, {
+    success: result.success,
+    statusCode: StatusCodes.OK,
+    message: result.success
+      ? 'Notification sent successfully'
+      : result.message || 'Failed to send notification',
+    data: result.response,
+  });
+});
 
 // set the read notification base on the user..
 const readNotification = catchAsync(

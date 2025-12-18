@@ -35,9 +35,9 @@ export class CoachAuthService {
       throw new ApiError(StatusCodes.BAD_REQUEST, "Coach doesn't exist!");
     }
 
-    if (!fcmToken && isExistCoach.role !== 'COACH') {
-      throw new ApiError(StatusCodes.BAD_REQUEST, 'FCM token Needed!');
-    }
+    // if (!fcmToken) {
+    //   throw new ApiError(StatusCodes.BAD_REQUEST, 'FCM token Needed!');
+    // }
 
     // Check if password matches
     if (
@@ -78,12 +78,8 @@ export class CoachAuthService {
     // 2️⃣ Save FCM token if provided
     if (fcmToken && isExistCoach.role !== 'SUPER_ADMIN') {
       console.log('Notification running');
-      await NotificationService.saveFCMToken(
-        isExistCoach._id.toString(),
-        isExistCoach.name,
-        isExistCoach.email,
-        fcmToken
-      );
+      isExistCoach.fcmToken = fcmToken;
+      await isExistCoach.save();
     }
     return {
       token: createToken,

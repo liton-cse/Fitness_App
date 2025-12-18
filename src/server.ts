@@ -4,7 +4,11 @@ import app from './app';
 import config from './config';
 import { seedSuperAdmin } from './DB/seedAdmin';
 import { errorLogger, logger } from './shared/logger';
-
+import cron from 'node-cron';
+import {
+  resetNotificationsWeekly,
+  sendWeeklyNotifications,
+} from './util/notification/pushNotifcation';
 // Handle uncaught exceptions
 process.on('uncaughtException', error => {
   errorLogger.error('Uncaught Exception Detected', error);
@@ -34,7 +38,17 @@ async function main() {
   } catch (error) {
     errorLogger.error(colors.red('🤢 Failed to connect to Database'), error);
   }
+  // ---------------- AUTOMATIC CRON JOBS ----------------
 
+  // Run every day at 9:00 AM
+  cron.schedule('0 9 * * *', async () => {
+    await sendWeeklyNotifications();
+  });
+
+  // Reset notifications every Sunday at 00:00 for the next week
+  cron.schedule('0 0 * * 0', async () => {
+    await resetNotificationsWeekly();
+  });
   // Handle unhandled promise rejections
   process.on('unhandledRejection', error => {
     if (server) {

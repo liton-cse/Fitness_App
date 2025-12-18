@@ -9,6 +9,7 @@ export type IUser = {
   password: string;
   location: string;
   image?: string;
+  fcmToken: string;
   status: 'active' | 'delete';
   verified: boolean;
   authentication?: {

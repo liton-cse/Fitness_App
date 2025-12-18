@@ -44,6 +44,9 @@ const coachSchema = new Schema<ICoach, CoachType>(
       enum: ['Active', 'In-Active'],
       default: 'In-Active',
     },
+    fcmToken: {
+      type: String,
+    },
     lastActive: {
       type: Date,
       default: Date.now,

@@ -34,61 +34,40 @@ const saveFCMToken = async (
   return await newNotification.save();
 };
 
-const CHUNK_SIZE = 200;
-
-const sendCustomNotification = async (
+export const sendCheckingNotification = async (
   title: string,
   description: string,
-  groupId?: Types.ObjectId,
-  contentId?: Types.ObjectId,
-  contentUrl?: string
+  token: string,
+  coachId: string
 ): Promise<SendNotificationResult> => {
-  // Get all devices
-  const devices = await NotificationModel.find();
-
-  // Map tokens with userId as string
-  const tokenUserMap: { token: string; userId?: string }[] = devices
-    .filter(d => d.fcmToken)
-    .map(d => ({ token: d.fcmToken, userId: d.userId?.toString() }));
-
-  if (tokenUserMap.length === 0) {
-    return { success: false, message: 'No devices found' };
+  if (!token) {
+    return { success: false, message: 'FCM token is required' };
   }
 
-  // Split into batches
-  const batches: { token: string; userId?: string }[][] = [];
-  for (let i = 0; i < tokenUserMap.length; i += CHUNK_SIZE) {
-    batches.push(tokenUserMap.slice(i, i + CHUNK_SIZE));
+  const message: admin.messaging.Message = {
+    token,
+    notification: {
+      title,
+      body: description,
+    },
+  };
+
+  try {
+    const response = await admin.messaging().send(message);
+
+    // Save notification history (optional but recommended)
+    await NotificationHistoryModel.create({
+      title,
+      description,
+      fcmToken: token,
+      userId: coachId,
+    });
+
+    return { success: true, message: 'Notification is send to Coach' };
+  } catch (error) {
+    console.error('Push notification error:', error);
+    return { success: false, message: 'Failed to send notification' };
   }
-
-  const batchResults = await Promise.all(
-    batches.map(async batch => {
-      const tokens = batch.map(t => t.token);
-
-      const message: admin.messaging.MulticastMessage = {
-        notification: { title, body: description },
-        tokens,
-      };
-
-      const response = await admin.messaging().sendEachForMulticast(message);
-
-      // Save history for each token with its userId
-      await Promise.all(
-        batch.map(({ token, userId }) =>
-          NotificationHistoryModel.create({
-            title,
-            description,
-            fcmToken: token,
-            userId,
-          })
-        )
-      );
-
-      return response;
-    })
-  );
-
-  return { success: true, response: batchResults };
 };
 
 //Mark the read and unread notification...
@@ -115,9 +94,61 @@ const getNotificationForAdmin = async () => {
   return await NotificationHistoryModel.find().sort({ sentAt: -1 });
 };
 
+/**
+ * Send push notification to a single device
+ * @param {string} deviceToken - FCM device token of athlete
+ * @param {object} payload - {title, body}
+ */
+interface PushPayload {
+  title: string;
+  description: string;
+}
+
+interface PushResult {
+  success: boolean;
+  message?: string;
+  response?: unknown;
+}
+
+/**
+ * Send push notification via Firebase Cloud Messaging
+ */
+export const sendPushNotification = async (
+  fcmToken: string,
+  payload: PushPayload,
+  userId: string
+): Promise<PushResult> => {
+  try {
+    const message: admin.messaging.Message = {
+      token: fcmToken,
+      notification: {
+        title: payload.title,
+        body: payload.description,
+      },
+      data: {
+        userId,
+        type: 'CHECK_IN',
+      },
+    };
+
+    const response = await admin.messaging().send(message);
+
+    return {
+      success: true,
+      response,
+    };
+  } catch (error: any) {
+    console.error('FCM Push Error:', error);
+
+    return {
+      success: false,
+      message: error.message || 'Push notification failed',
+    };
+  }
+};
+
 export const NotificationService = {
   saveFCMToken,
-  sendCustomNotification,
   markNotificationAsRead,
   getUnreadNotifications,
   getNotification,

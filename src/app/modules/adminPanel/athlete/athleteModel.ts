@@ -1,4 +1,4 @@
-import { Schema, model } from 'mongoose';
+import { Schema, Types, model } from 'mongoose';
 import { AthleteType, IAthlete } from './athleteInterface';
 import { USER_ROLES } from '../../../../enums/user';
 import config from '../../../../config';
@@ -9,6 +9,16 @@ import { StatusCodes } from 'http-status-codes';
 const athleteSchema = new Schema<IAthlete, AthleteType>(
   {
     name: { type: String, required: true },
+    coachId: {
+      type: Types.ObjectId,
+      required: true,
+      refPath: 'userModel',
+    },
+    userModel: {
+      type: String,
+      required: true,
+      enum: ['Coach', 'User'],
+    },
     role: {
       type: String,
       enum: Object.values(USER_ROLES),
@@ -38,7 +48,8 @@ const athleteSchema = new Schema<IAthlete, AthleteType>(
       type: String,
       default: 'https://i.ibb.co/z5YHLV9/profile.png',
     },
-
+    notifiedThisWeek: { type: Boolean, default: false },
+    fcmToken: { type: String },
     age: { type: Number, required: true },
     water: { type: Number, required: true },
 
@@ -120,3 +131,20 @@ export const AthleteModel = model<IAthlete, AthleteType>(
   'Athlete',
   athleteSchema
 );
+
+/** Get athletes whose checkDay matches today and haven't been notified */
+export const getAthletesForToday = async (
+  today: string
+): Promise<IAthlete[]> => {
+  return AthleteModel.find({ checkDay: today, notifiedThisWeek: false });
+};
+
+/** Mark athlete as notified this week */
+export const markNotificationSent = async (id: string): Promise<void> => {
+  await AthleteModel.findByIdAndUpdate(id, { notifiedThisWeek: true });
+};
+
+/** Reset notifications for all athletes (weekly reset) */
+export const resetWeeklyNotifications = async (): Promise<void> => {
+  await AthleteModel.updateMany({}, { notifiedThisWeek: false });
+};

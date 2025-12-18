@@ -20,10 +20,6 @@ const ExerciseSchema = new Schema<IExercise>({
     type: String,
     required: true,
   },
-  comment: {
-    type: String,
-    default: '',
-  },
 });
 
 /* Training Plan Schema */
@@ -52,6 +48,10 @@ const TrainingPlanSchema = new Schema<ITrainingPlan>(
       type: String,
       required: true,
       trim: true,
+    },
+    comment: {
+      type: String,
+      default: '',
     },
   },
   {
