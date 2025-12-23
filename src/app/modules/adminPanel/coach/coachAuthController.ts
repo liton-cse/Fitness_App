@@ -36,9 +36,10 @@ export class CoachAuthController {
       sendResponse(res, {
         success: true,
         statusCode: StatusCodes.OK,
-        message: result.message,
+        message:
+          'Please check your email. We have sent you a one-time passcode (OTP).',
         data: {
-          otp: result.otp, // Only in development
+          otp: result,
         },
       });
     }
@@ -56,7 +57,7 @@ export class CoachAuthController {
         success: true,
         statusCode: StatusCodes.OK,
         message: result.message,
-        data: result.data ? { token: result.data } : null,
+        data: result.data,
       });
     }
   );
@@ -67,14 +68,15 @@ export class CoachAuthController {
    */
   resetPassword = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
-      const { token } = req.params;
-      const result = await authService.resetPasswordToDB(token, req.body);
+      const token = req.headers.authorization;
+      const { ...resetData } = req.body;
+      const result = await authService.resetPasswordToDB(token!, resetData);
 
       sendResponse(res, {
         success: true,
         statusCode: StatusCodes.OK,
-        message: result.message,
-        data: null,
+        message: 'Your password has been successfully reset.',
+        data: result,
       });
     }
   );

@@ -1,3 +1,6 @@
+import { Types } from 'mongoose';
+import { IAthlete } from '../app/modules/adminPanel/athlete/athleteInterface';
+
 type IFolderName = 'image' | 'media' | 'doc' | 'vedio' | 'video';
 
 //single file
@@ -20,4 +23,25 @@ export const getMultipleFilesPath = (files: any, folderName: IFolderName) => {
   }
 
   return undefined;
+};
+
+interface RawAthleteInput {
+  [key: string]: any;
+}
+
+export const normalizeAthleteInput = (
+  input: RawAthleteInput
+): Partial<IAthlete> => {
+  return {
+    ...input,
+    weight: Number(input.weight),
+    height: Number(input.height),
+    age: Number(input.age),
+    waterQuantity: Number(input.waterQuantity),
+    trainingDaySteps: Number(input.trainingDaySteps),
+    restDaySteps: Number(input.restDaySteps),
+    // Convert _id / coachId to ObjectId if needed
+    coachId: input.coachId ? new Types.ObjectId(input.coachId) : undefined,
+    lastCheckIn: input.lastCheckIn ? new Date(input.lastCheckIn) : undefined,
+  };
 };

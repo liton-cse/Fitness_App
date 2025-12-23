@@ -34,7 +34,7 @@ export class DailyTrackingController {
    */
   getAllDailyTracking = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
-      const userId = req.user.id;
+      const userId = req.params.userId;
       const result = await dailyTrackingService.getAllDailyTracking(userId);
 
       sendResponse(res, {

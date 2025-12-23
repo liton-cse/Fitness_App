@@ -40,7 +40,7 @@ export class AthleteNutritionPlanController {
         mealName: req.query.mealName as string,
         trainingDay: req.query.trainingDay as string,
       };
-      const athleteId = req.user.id;
+      const athleteId = req.params.id;
 
       const result = await nutritionService.getNutritionPlans(
         filters,
@@ -80,6 +80,7 @@ export class AthleteNutritionPlanController {
   updateNutritionPlan = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
       const result = await nutritionService.updateNutritionPlan(
+        req.params.userId,
         req.params.id,
         req.body
       );
@@ -99,7 +100,10 @@ export class AthleteNutritionPlanController {
    */
   deleteNutritionPlan = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
-      const result = await nutritionService.deleteNutritionPlan(req.params.id);
+      const result = await nutritionService.deleteNutritionPlan(
+        req.params.userId,
+        req.params.id
+      );
 
       sendResponse(res, {
         success: true,

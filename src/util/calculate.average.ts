@@ -15,6 +15,9 @@ export function calculateNumericAverages(weeklyData: DailyTracking[]) {
       motivation: 0,
       bodyTemperature: 0,
     },
+    training: {
+      cardioDuration: 0,
+    },
     nutrition: {
       calories: 0,
       carbs: 0,
@@ -58,6 +61,8 @@ export function calculateNumericAverages(weeklyData: DailyTracking[]) {
     totals.energyAndWellBeing.bodyTemperature += Number(
       item.energyAndWellBeing.bodyTemperature
     ); // string to number
+
+    totals.training.cardioDuration += Number(item.training.duration);
 
     totals.nutrition.calories += Number(item.nutrition.calories);
     totals.nutrition.carbs += Number(item.nutrition.carbs);
@@ -103,6 +108,9 @@ export function calculateNumericAverages(weeklyData: DailyTracking[]) {
       hungerLevel: totals.nutrition.hungerLevel / count,
       digestionLevel: totals.nutrition.digestionLevel / count,
       salt: totals.nutrition.salt / count,
+    },
+    training: {
+      cardioDuration: totals.training.cardioDuration / count,
     },
     woman: {
       pmsSymptoms: totals.woman.pmsSymptoms / count,

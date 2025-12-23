@@ -11,11 +11,19 @@ router.get('/', foodController.getAllFoodItems);
 router.get('/:id', foodController.getFoodItemById);
 
 // Protected routes (Admin or Coach)
-router.post('/', auth(USER_ROLES.SUPER_ADMIN), foodController.addFoodItem);
-router.put('/:id', auth(USER_ROLES.SUPER_ADMIN), foodController.updateFoodItem);
+router.post(
+  '/',
+  auth(USER_ROLES.SUPER_ADMIN, USER_ROLES.COACH),
+  foodController.addFoodItem
+);
+router.put(
+  '/:id',
+  auth(USER_ROLES.SUPER_ADMIN, USER_ROLES.COACH),
+  foodController.updateFoodItem
+);
 router.delete(
   '/:id',
-  auth(USER_ROLES.SUPER_ADMIN),
+  auth(USER_ROLES.SUPER_ADMIN, USER_ROLES.COACH),
   foodController.deleteFoodItem
 );
 

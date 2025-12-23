@@ -3,8 +3,7 @@ import { USER_ROLES } from '../../../../enums/user';
 
 export interface IAthlete {
   _id: Types.ObjectId;
-  coachId: Types.ObjectId;
-  userModel: 'Coach' | 'User';
+  coachId: string;
   name: string;
   email: string;
   role: USER_ROLES;
@@ -14,7 +13,7 @@ export interface IAthlete {
   phase: string;
   weight: number;
   height: number;
-  water: number;
+  waterQuantity: number;
   image?: string;
   age: number;
   status: 'Natural' | 'Enhanced';

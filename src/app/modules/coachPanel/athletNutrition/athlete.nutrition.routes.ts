@@ -8,14 +8,10 @@ const controller = new AthleteNutritionPlanController();
 
 // CRUD routes
 router.post('/:id', auth(USER_ROLES.COACH), controller.addNutritionPlan);
-router.get(
-  '/:id',
-  auth(USER_ROLES.COACH, USER_ROLES.ATHLETE),
-  controller.getNutritionPlans
-); // with filter/search
+router.get('/:id', controller.getNutritionPlans); // with filter/search
 
 router.get('/one/:id', controller.getNutritionPlanById);
-router.patch('/:id', controller.updateNutritionPlan);
-router.delete('/:id', controller.deleteNutritionPlan);
+router.put('/:userId/:id', controller.updateNutritionPlan);
+router.delete('/:userId/:id', controller.deleteNutritionPlan);
 
 export const CoachNutritionRouter = router;

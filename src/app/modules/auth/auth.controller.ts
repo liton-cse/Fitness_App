@@ -6,6 +6,7 @@ import { AuthService } from './auth.service';
 
 const verifyEmail = catchAsync(async (req: Request, res: Response) => {
   const { ...verifyData } = req.body;
+  console.log(req.body);
   const result = await AuthService.verifyEmailToDB(verifyData);
 
   sendResponse(res, {
@@ -25,6 +26,7 @@ const loginUser = catchAsync(async (req: Request, res: Response) => {
     statusCode: StatusCodes.OK,
     message: 'User logged in successfully.',
     data: result.createToken,
+    role: result.role,
   });
 });
 
@@ -44,6 +46,7 @@ const forgetPassword = catchAsync(async (req: Request, res: Response) => {
 const resetPassword = catchAsync(async (req: Request, res: Response) => {
   const token = req.headers.authorization;
   const { ...resetData } = req.body;
+  console.log(token, resetData);
   const result = await AuthService.resetPasswordToDB(token!, resetData);
 
   sendResponse(res, {

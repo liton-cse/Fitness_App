@@ -116,11 +116,15 @@ export class AthleteNutritionPlanService {
    * Update a nutrition plan by ID
    */
   async updateNutritionPlan(
+    userId: string,
     id: string,
     payload: Partial<IAthleteNutritionPlan>
   ) {
     const updatedPlan = await AthleteNutritionPlanModel.findByIdAndUpdate(
-      id,
+      {
+        _id: id,
+        athleteId: userId,
+      },
       payload,
       {
         new: true,
@@ -133,8 +137,11 @@ export class AthleteNutritionPlanService {
   /**
    * Delete a nutrition plan by ID
    */
-  async deleteNutritionPlan(id: string) {
-    const deletedPlan = await AthleteNutritionPlanModel.findByIdAndDelete(id);
+  async deleteNutritionPlan(userId: string, id: string) {
+    const deletedPlan = await AthleteNutritionPlanModel.findByIdAndDelete({
+      athleteId: userId,
+      _id: id,
+    });
     return deletedPlan;
   }
 }

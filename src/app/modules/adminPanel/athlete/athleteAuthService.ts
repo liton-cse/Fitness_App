@@ -43,10 +43,6 @@ export class AthleteAuthService {
       throw new ApiError(StatusCodes.BAD_REQUEST, 'Password is incorrect!');
     }
 
-    if (isExistAthlete.isActive === 'In-Active') {
-      throw new ApiError(StatusCodes.FORBIDDEN, 'Your account is deactivated');
-    }
-
     await AthleteModel.findByIdAndUpdate(isExistAthlete._id, {
       isActive: 'Active',
       lastActive: new Date(),
@@ -80,24 +76,25 @@ export class AthleteAuthService {
 
   /**
    * Send OTP for password reset
+   * @param email Coach email
+   * @returns Success message
    */
   async forgetPasswordToDB(email: string) {
-    const isExistAthlete = await AthleteModel.isExistAthleteByEmail(email);
-    if (!isExistAthlete) {
+    const isExistUser = await AthleteModel.isExistAthleteByEmail(email);
+    if (!isExistUser) {
       throw new ApiError(StatusCodes.BAD_REQUEST, "Athlete doesn't exist!");
     }
 
+    //send mail
     const otp = generateOTP();
-
     const value = {
       otp,
-      email: isExistAthlete.email,
-      name: isExistAthlete.name,
+      email: isExistUser.email,
     };
-    const forgetPasswordEmail = emailTemplate.resetPassword(value);
+    const forgetPassword = emailTemplate.resetPassword(value);
+    emailHelper.sendEmail(forgetPassword);
 
-    emailHelper.sendEmail(forgetPasswordEmail);
-
+    //save to DB
     const authentication = {
       oneTimeCode: otp,
       expireAt: new Date(Date.now() + 3 * 60000),
@@ -106,103 +103,121 @@ export class AthleteAuthService {
       { email },
       { $set: { authentication } }
     );
-
-    return {
-      message: 'Password reset OTP sent to your email',
-      otp: process.env.NODE_ENV === 'development' ? otp : undefined,
-    };
   }
 
   /**
    * Verify email with OTP
+   * @param payload Email and OTP
+   * @returns Verification result
    */
   async verifyEmailToDB(payload: IVerifyEmail) {
     const { email, oneTimeCode } = payload;
-    const isExistAthlete = await AthleteModel.findOne({ email }).select(
+    const isExistUser = await AthleteModel.findOne({ email }).select(
       '+authentication'
     );
-    if (!isExistAthlete) {
+    if (!isExistUser) {
       throw new ApiError(StatusCodes.BAD_REQUEST, "Athlete doesn't exist!");
     }
 
     if (!oneTimeCode) {
       throw new ApiError(
         StatusCodes.BAD_REQUEST,
-        'Please provide the OTP sent to your email'
+        'Please give the otp, check your email we send a code'
       );
     }
+    console.log(oneTimeCode);
+    console.log(isExistUser.authentication?.oneTimeCode);
 
-    if (isExistAthlete.authentication?.oneTimeCode !== oneTimeCode) {
-      throw new ApiError(StatusCodes.BAD_REQUEST, 'Invalid OTP');
+    if (isExistUser.authentication?.oneTimeCode !== Number(oneTimeCode)) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'Athlete provided wrong otp');
     }
 
-    if (new Date() > (isExistAthlete.authentication?.expireAt || new Date())) {
+    const date = new Date();
+    if (date > isExistUser.authentication?.expireAt) {
       throw new ApiError(
         StatusCodes.BAD_REQUEST,
-        'OTP expired. Please request a new one'
+        'Otp already expired, Please try again'
       );
     }
 
     let message;
     let data;
 
-    if (!isExistAthlete.verified) {
-      await AthleteModel.findByIdAndUpdate(isExistAthlete._id, {
-        verified: true,
-        authentication: { oneTimeCode: null, expireAt: null },
-      });
-      message = 'Email verified successfully';
+    if (!isExistUser.verified) {
+      await AthleteModel.findOneAndUpdate(
+        { _id: isExistUser._id },
+        {
+          verified: true,
+          authentication: { oneTimeCode: null, expireAt: null },
+        }
+      );
+      message = 'Email verify successfully';
     } else {
-      await AthleteModel.findByIdAndUpdate(isExistAthlete._id, {
-        authentication: {
-          isResetPassword: true,
-          oneTimeCode: null,
-          expireAt: null,
-        },
-      });
+      await AthleteModel.findOneAndUpdate(
+        { _id: isExistUser._id },
+        {
+          authentication: {
+            isResetPassword: true,
+            oneTimeCode: null,
+            expireAt: null,
+          },
+        }
+      );
 
+      //create token ;
       const createToken = cryptoToken();
       await ResetToken.create({
-        user: isExistAthlete._id,
+        user: isExistUser._id,
         token: createToken,
         expireAt: new Date(Date.now() + 5 * 60000),
       });
-
-      message = 'Verification successful. Use this code to reset your password';
+      message =
+        'Verification Successful: Please securely store and utilize this code for reset password';
       data = createToken;
     }
-
     return { data, message };
   }
 
   /**
    * Reset password using reset token
+   * @param token Reset token
+   * @param payload New password details
+   * @returns Success message
    */
   async resetPasswordToDB(token: string, payload: IAuthResetPassword) {
     const { newPassword, confirmPassword } = payload;
-
+    //isExist token
     const isExistToken = await ResetToken.isExistToken(token);
     if (!isExistToken) {
-      throw new ApiError(StatusCodes.UNAUTHORIZED, 'Invalid reset token');
+      throw new ApiError(StatusCodes.UNAUTHORIZED, 'You are not authorized');
     }
 
-    const isExistAthlete = await AthleteModel.findById(
-      isExistToken.user
-    ).select('+authentication');
-    if (!isExistAthlete?.authentication?.isResetPassword) {
+    //user permission check
+    const isExistUser = await AthleteModel.findById(isExistToken.user).select(
+      '+authentication'
+    );
+    if (!isExistUser?.authentication?.isResetPassword) {
       throw new ApiError(
         StatusCodes.UNAUTHORIZED,
-        'No permission to reset password'
+        "You don't have permission to change the password. Please click again to 'Forgot Password'"
       );
     }
 
+    //validity check
     const isValid = await ResetToken.isExpireToken(token);
     if (!isValid) {
-      throw new ApiError(StatusCodes.BAD_REQUEST, 'Reset token expired');
+      throw new ApiError(
+        StatusCodes.BAD_REQUEST,
+        'Token expired, Please click again to the forget password'
+      );
     }
 
+    //check password
     if (newPassword !== confirmPassword) {
-      throw new ApiError(StatusCodes.BAD_REQUEST, "Passwords don't match");
+      throw new ApiError(
+        StatusCodes.BAD_REQUEST,
+        "New password and Confirm password doesn't match!"
+      );
     }
 
     const hashPassword = await bcrypt.hash(
@@ -210,18 +225,20 @@ export class AthleteAuthService {
       Number(config.bcrypt_salt_rounds)
     );
 
-    await AthleteModel.findByIdAndUpdate(isExistToken.user, {
+    const updateData = {
       password: hashPassword,
       authentication: {
         isResetPassword: false,
-        oneTimeCode: null,
-        expireAt: null,
       },
-    });
+    };
 
-    await ResetToken.deleteOne({ token });
-
-    return { message: 'Password reset successfully' };
+    await AthleteModel.findOneAndUpdate(
+      { _id: isExistToken.user },
+      updateData,
+      {
+        new: true,
+      }
+    );
   }
 
   /**

@@ -16,10 +16,11 @@ export class CoachController {
     async (req: Request, res: Response, next: NextFunction) => {
       // Get image file path if uploaded
       let image = getSingleFilePath(req.files, 'image');
-
+      const password = '123456789';
       // Prepare data for creation
       const data = {
         ...req.body,
+        password,
         image,
       };
 

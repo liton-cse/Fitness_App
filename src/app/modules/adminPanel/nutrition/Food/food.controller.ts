@@ -14,7 +14,7 @@ export class FoodItemController {
   addFoodItem = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
       const result = await foodService.createFoodItem(req.body);
-
+      console.log(req.body);
       sendResponse(res, {
         success: true,
         statusCode: StatusCodes.CREATED,

@@ -36,10 +36,9 @@ export class AuthleteController {
       sendResponse(res, {
         success: true,
         statusCode: StatusCodes.OK,
-        message: result.message,
-        data: {
-          otp: result.otp, // Only in development
-        },
+        message:
+          'Please check your email. We have sent you a one-time passcode (OTP).',
+        data: result,
       });
     }
   );
@@ -56,7 +55,7 @@ export class AuthleteController {
         success: true,
         statusCode: StatusCodes.OK,
         message: result.message,
-        data: result.data ? { token: result.data } : null,
+        data: result.data,
       });
     }
   );
@@ -67,14 +66,15 @@ export class AuthleteController {
    */
   resetPassword = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
-      const { token } = req.params;
-      const result = await authService.resetPasswordToDB(token, req.body);
+      const token = req.headers.authorization;
+      const { ...resetData } = req.body;
+      const result = await authService.resetPasswordToDB(token!, req.body);
 
       sendResponse(res, {
         success: true,
         statusCode: StatusCodes.OK,
-        message: result.message,
-        data: null,
+        message: 'Your password has been successfully reset.',
+        data: result,
       });
     }
   );

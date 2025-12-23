@@ -16,32 +16,15 @@ export class AthleteService {
     if (!createAthlete) {
       throw new ApiError(StatusCodes.BAD_REQUEST, 'Failed to create Athlete');
     }
-
-    //send email
-    const otp = generateOTP();
-    const values = {
-      name: createAthlete.name,
-      otp: otp,
-      email: createAthlete.email!,
-    };
-    const createAccountTemplate = emailTemplate.createAccount(values);
-    emailHelper.sendEmail(createAccountTemplate);
-
-    //save to DB
-    const authentication = {
-      oneTimeCode: otp,
-      expireAt: new Date(Date.now() + 3 * 60000),
-    };
-    await AthleteModel.findOneAndUpdate(
-      { _id: createAthlete._id },
-      { $set: { authentication } }
-    );
-
     return createAthlete;
   }
 
   async getAllAthletes() {
     return await AthleteModel.find();
+  }
+
+  async getAllAthletesByCoachId(coachId: string) {
+    return await AthleteModel.find({ coachId });
   }
 
   async getAthleteById(id: string) {

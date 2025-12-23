@@ -25,7 +25,7 @@ const EnergyAndWellBeingSchema = new Schema(
 
 const TrainingSchema = new Schema(
   {
-    traningCompleted: { type: Boolean, required: true },
+    trainingCompleted: { type: Boolean, required: true },
 
     trainingPlan: {
       type: [String],

@@ -47,14 +47,10 @@ export class CoachAuthService {
       throw new ApiError(StatusCodes.BAD_REQUEST, 'Password is incorrect!');
     }
 
-    // Check if coach is active
-    if (isExistCoach.isActive === 'In-Active') {
-      throw new ApiError(StatusCodes.FORBIDDEN, 'Your account is deactivated');
-    }
-
     // Update last active timestamp
     await CoachModel.findByIdAndUpdate(isExistCoach._id, {
       lastActive: new Date(),
+      isActive: 'Active',
     });
 
     // Create JWT token
@@ -81,9 +77,10 @@ export class CoachAuthService {
       isExistCoach.fcmToken = fcmToken;
       await isExistCoach.save();
     }
+    const role = isExistCoach.role;
     return {
       token: createToken,
-      coach: coachData,
+      role: role,
     };
   }
 
@@ -93,38 +90,26 @@ export class CoachAuthService {
    * @returns Success message
    */
   async forgetPasswordToDB(email: string) {
-    const isExistCoach = await CoachModel.isExistCoachByEmail(email);
-    if (!isExistCoach) {
-      throw new ApiError(StatusCodes.BAD_REQUEST, "Coach doesn't exist!");
+    const isExistUser = await CoachModel.isExistCoachByEmail(email);
+    if (!isExistUser) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, "User doesn't exist!");
     }
 
-    // Generate OTP
+    //send mail
     const otp = generateOTP();
-
-    // Prepare email content
     const value = {
       otp,
-      email: isExistCoach.email,
-      name: isExistCoach.name,
+      email: isExistUser.email,
     };
-    const forgetPasswordEmail = emailTemplate.resetPassword(value);
+    const forgetPassword = emailTemplate.resetPassword(value);
+    emailHelper.sendEmail(forgetPassword);
 
-    // Send email
-    emailHelper.sendEmail(forgetPasswordEmail);
-
-    // Save OTP to database with expiration (3 minutes)
+    //save to DB
     const authentication = {
       oneTimeCode: otp,
       expireAt: new Date(Date.now() + 3 * 60000),
     };
-
     await CoachModel.findOneAndUpdate({ email }, { $set: { authentication } });
-
-    return {
-      message: 'Password reset OTP sent to your email',
-      // In development, return OTP for testing
-      otp: process.env.NODE_ENV === 'development' ? otp : undefined,
-    };
   }
 
   /**
@@ -134,67 +119,69 @@ export class CoachAuthService {
    */
   async verifyEmailToDB(payload: IVerifyEmail) {
     const { email, oneTimeCode } = payload;
-
-    const isExistCoach = await CoachModel.findOne({ email }).select(
+    const isExistUser = await CoachModel.findOne({ email }).select(
       '+authentication'
     );
-    if (!isExistCoach) {
-      throw new ApiError(StatusCodes.BAD_REQUEST, "Coach doesn't exist!");
+    if (!isExistUser) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, "User doesn't exist!");
     }
 
     if (!oneTimeCode) {
       throw new ApiError(
         StatusCodes.BAD_REQUEST,
-        'Please provide the OTP sent to your email'
+        'Please give the otp, check your email we send a code'
       );
     }
+    console.log(oneTimeCode);
+    console.log(isExistUser.authentication?.oneTimeCode);
 
-    // Check if OTP matches
-    if (isExistCoach.authentication?.oneTimeCode !== oneTimeCode) {
-      throw new ApiError(StatusCodes.BAD_REQUEST, 'Invalid OTP');
+    if (isExistUser.authentication?.oneTimeCode !== Number(oneTimeCode)) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'You provided wrong otp');
     }
 
-    // Check if OTP is expired
     const date = new Date();
-    if (date > (isExistCoach.authentication?.expireAt || new Date())) {
+    if (date > isExistUser.authentication?.expireAt) {
       throw new ApiError(
         StatusCodes.BAD_REQUEST,
-        'OTP expired. Please request a new one'
+        'Otp already expired, Please try again'
       );
     }
 
     let message;
     let data;
 
-    // If coach is not verified, verify them
-    if (!isExistCoach.verified) {
-      await CoachModel.findByIdAndUpdate(isExistCoach._id, {
-        verified: true,
-        authentication: { oneTimeCode: null, expireAt: null },
-      });
-      message = 'Email verified successfully';
+    if (!isExistUser.verified) {
+      await CoachModel.findOneAndUpdate(
+        { _id: isExistUser._id },
+        {
+          verified: true,
+          authentication: { oneTimeCode: null, expireAt: null },
+        }
+      );
+      message = 'Email verify successfully';
     } else {
-      // If already verified, prepare for password reset
-      await CoachModel.findByIdAndUpdate(isExistCoach._id, {
-        authentication: {
-          isResetPassword: true,
-          oneTimeCode: null,
-          expireAt: null,
-        },
-      });
+      await CoachModel.findOneAndUpdate(
+        { _id: isExistUser._id },
+        {
+          authentication: {
+            isResetPassword: true,
+            oneTimeCode: null,
+            expireAt: null,
+          },
+        }
+      );
 
-      // Create reset token
+      //create token ;
       const createToken = cryptoToken();
       await ResetToken.create({
-        user: isExistCoach._id,
+        user: isExistUser._id,
         token: createToken,
-        expireAt: new Date(Date.now() + 5 * 60000), // 5 minutes expiry
+        expireAt: new Date(Date.now() + 5 * 60000),
       });
-
-      message = 'Verification successful. Use this code to reset your password';
+      message =
+        'Verification Successful: Please securely store and utilize this code for reset password';
       data = createToken;
     }
-
     return { data, message };
   }
 
@@ -206,65 +193,55 @@ export class CoachAuthService {
    */
   async resetPasswordToDB(token: string, payload: IAuthResetPassword) {
     const { newPassword, confirmPassword } = payload;
-
-    // Check if token exists
+    //isExist token
     const isExistToken = await ResetToken.isExistToken(token);
     if (!isExistToken) {
-      throw new ApiError(StatusCodes.UNAUTHORIZED, 'Invalid reset token');
+      throw new ApiError(StatusCodes.UNAUTHORIZED, 'You are not authorized');
     }
 
-    // Find coach and check reset permission
-    const isExistCoach = await CoachModel.findById(isExistToken.user).select(
+    //user permission check
+    const isExistUser = await CoachModel.findById(isExistToken.user).select(
       '+authentication'
     );
-    if (!isExistCoach?.authentication?.isResetPassword) {
+    if (!isExistUser?.authentication?.isResetPassword) {
       throw new ApiError(
         StatusCodes.UNAUTHORIZED,
-        "You don't have permission to reset password. Please request a new reset"
+        "You don't have permission to change the password. Please click again to 'Forgot Password'"
       );
     }
 
-    // Check token expiry
+    //validity check
     const isValid = await ResetToken.isExpireToken(token);
     if (!isValid) {
       throw new ApiError(
         StatusCodes.BAD_REQUEST,
-        'Reset token expired. Please request a new one'
+        'Token expired, Please click again to the forget password'
       );
     }
 
-    // Validate passwords match
+    //check password
     if (newPassword !== confirmPassword) {
       throw new ApiError(
         StatusCodes.BAD_REQUEST,
-        "New password and confirm password don't match"
+        "New password and Confirm password doesn't match!"
       );
     }
 
-    // Hash new password
     const hashPassword = await bcrypt.hash(
       newPassword,
       Number(config.bcrypt_salt_rounds)
     );
 
-    // Update coach password and clear reset flags
     const updateData = {
       password: hashPassword,
       authentication: {
         isResetPassword: false,
-        oneTimeCode: null,
-        expireAt: null,
       },
     };
 
-    await CoachModel.findByIdAndUpdate(isExistToken.user, updateData, {
+    await CoachModel.findOneAndUpdate({ _id: isExistToken.user }, updateData, {
       new: true,
     });
-
-    // Delete used token
-    await ResetToken.deleteOne({ token });
-
-    return { message: 'Password reset successfully' };
   }
 
   /**

@@ -83,7 +83,7 @@ export interface EnergyAndWellBeing {
 }
 
 export interface Training {
-  traningCompleted: boolean;
+  trainingCompleted: boolean;
   trainingPlan: TrainingPlan[];
   cardioCompleted: boolean;
   cardioType: CardioType;
@@ -118,4 +118,8 @@ export interface BloodPressure {
   diastolic: string;
   restingHeartRate: string;
   bloodGlucose: string;
+}
+
+export interface IDailyTrackingHistory {
+  userId: string;
 }

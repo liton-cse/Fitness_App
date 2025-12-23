@@ -18,7 +18,7 @@ router.post('/reset-password', coachController.resetPassword);
  * @desc    Get all coaches with pagination
  * @access  Private (Admin only)
  */
-router.get('/', auth(USER_ROLES.SUPER_ADMIN), coachController.getAll);
+router.get('/', coachController.getAll);
 
 /**
  * @route   GET /api/v1/coaches/:id
@@ -36,12 +36,7 @@ router.get(
  * @desc    Create a new coach
  * @access  Public (for registration) or Private (Admin)
  */
-router.post(
-  '/',
-  auth(USER_ROLES.SUPER_ADMIN),
-  fileUploadHandler(),
-  coachController.create
-);
+router.post('/', fileUploadHandler(), coachController.create);
 
 /**
  * @route   PATCH /api/v1/coaches/:id

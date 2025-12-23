@@ -13,17 +13,17 @@ router.get('/:id', supplementController.getSupplementById);
 // Protected routes (Admin or Coach)
 router.post(
   '/',
-  auth(USER_ROLES.SUPER_ADMIN),
+  auth(USER_ROLES.SUPER_ADMIN, USER_ROLES.COACH),
   supplementController.addSupplement
 );
 router.put(
   '/:id',
-  auth(USER_ROLES.SUPER_ADMIN),
+  auth(USER_ROLES.SUPER_ADMIN, USER_ROLES.COACH),
   supplementController.updateSupplement
 );
 router.delete(
   '/:id',
-  auth(USER_ROLES.SUPER_ADMIN),
+  auth(USER_ROLES.SUPER_ADMIN, USER_ROLES.COACH),
   supplementController.deleteSupplement
 );
 

@@ -3,7 +3,10 @@ import { StatusCodes } from 'http-status-codes';
 import { AthleteService } from './athleteservice';
 import catchAsync from '../../../../shared/catchAsync';
 import sendResponse from '../../../../shared/sendResponse';
-import { getSingleFilePath } from '../../../../shared/getFilePath';
+import {
+  getSingleFilePath,
+  normalizeAthleteInput,
+} from '../../../../shared/getFilePath';
 
 const athleteService = new AthleteService();
 
@@ -11,10 +14,17 @@ export class AthleteController {
   create = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
       let image = getSingleFilePath(req.files, 'image');
+
+      const coachId = req.user.role === 'COACH' ? req.user.id : '';
+
+      const password = '123456789';
       const data = {
+        coachId,
         ...req.body,
+        password,
         image,
       };
+      console.log(data);
       const result = await athleteService.createAthlete(data);
 
       sendResponse(res, {
@@ -29,6 +39,19 @@ export class AthleteController {
   getAll = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
       const result = await athleteService.getAllAthletes();
+      sendResponse(res, {
+        success: true,
+        statusCode: StatusCodes.OK,
+        message: 'All athletes fetched successfully',
+        data: result,
+      });
+    }
+  );
+
+  getAllByCoach = catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const coachId = req.user.id;
+      const result = await athleteService.getAllAthletesByCoachId(coachId);
       sendResponse(res, {
         success: true,
         statusCode: StatusCodes.OK,

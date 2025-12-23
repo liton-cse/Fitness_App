@@ -9,22 +9,26 @@ const controller = new ExerciseController();
 
 router.post(
   '/',
-  auth(USER_ROLES.SUPER_ADMIN),
+  auth(USER_ROLES.SUPER_ADMIN, USER_ROLES.COACH),
   fileUploadHandler(),
   controller.addExercise
 );
 router.get(
   '/',
-  auth(USER_ROLES.SUPER_ADMIN, USER_ROLES.ATHLETE),
+  auth(USER_ROLES.SUPER_ADMIN, USER_ROLES.ATHLETE, USER_ROLES.COACH),
   controller.getAllExercises
 );
 router.get('/:id', auth(USER_ROLES.SUPER_ADMIN), controller.getExerciseById);
 router.put(
   '/:id',
-  auth(USER_ROLES.SUPER_ADMIN),
+  auth(USER_ROLES.SUPER_ADMIN, USER_ROLES.COACH),
   fileUploadHandler(),
   controller.updateExercise
 );
-router.delete('/:id', auth(USER_ROLES.SUPER_ADMIN), controller.deleteExercise);
+router.delete(
+  '/:id',
+  auth(USER_ROLES.SUPER_ADMIN, USER_ROLES.COACH),
+  controller.deleteExercise
+);
 
 export const ExerciseRouter = router;

@@ -57,7 +57,9 @@ const loginUserFromDB = async (payload: ILoginData) => {
     isExistUser.fcmToken = fcmToken;
     await isExistUser.save();
   }
-  return { createToken };
+  const role = isExistUser.role;
+  console.log(role);
+  return { createToken, role };
 };
 
 //forget password

@@ -17,6 +17,9 @@ import { DailyTrackingMealRoutes } from '../app/modules/appAthlete/trackMeal/tra
 import { TrainingPlanRoutes } from '../app/modules/coachPanel/trainingPlan/trainingplan.routes';
 import { TrainingPushDayHistoryRoutes } from '../app/modules/appAthlete/trainingPlanHistory/trainigplan.history.route';
 import { TrainingPlanSpliteRoutes } from '../app/modules/coachPanel/trainingSplite/training.splite.route';
+import { getAthleteTimelineController } from '../app/modules/coachPanel/timeLine/timeline.controller';
+import { TimeLineRouter } from '../app/modules/coachPanel/timeLine/timeline.routes';
+import { ProfileRouter } from '../app/modules/appAthlete/profile/profile.routes';
 const router = express.Router();
 
 const apiRoutes = [
@@ -91,6 +94,14 @@ const apiRoutes = [
   {
     path: '/training/splite',
     route: TrainingPlanSpliteRoutes,
+  },
+  {
+    path: '/timeline',
+    route: TimeLineRouter,
+  },
+  {
+    path: '/profile',
+    route: ProfileRouter,
   },
 ];
 
