@@ -20,6 +20,7 @@ import { TrainingPlanSpliteRoutes } from '../app/modules/coachPanel/trainingSpli
 import { getAthleteTimelineController } from '../app/modules/coachPanel/timeLine/timeline.controller';
 import { TimeLineRouter } from '../app/modules/coachPanel/timeLine/timeline.routes';
 import { ProfileRouter } from '../app/modules/appAthlete/profile/profile.routes';
+import { PEDDatabaseRouter } from '../app/modules/coachPanel/ped/ped.route';
 const router = express.Router();
 
 const apiRoutes = [
@@ -103,6 +104,10 @@ const apiRoutes = [
     path: '/profile',
     route: ProfileRouter,
   },
+  {
+    path:'/ped',
+    route:PEDDatabaseRouter
+  }
 ];
 
 apiRoutes.forEach(route => router.use(route.path, route.route));

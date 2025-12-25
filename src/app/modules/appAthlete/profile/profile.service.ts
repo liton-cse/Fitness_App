@@ -1,3 +1,4 @@
+
 import { AthleteModel } from '../../adminPanel/athlete/athleteModel';
 import { CoachModel } from '../../adminPanel/coach/coachModel';
 import { ShowManagementModel } from '../../coachPanel/showManagement/management.model';
@@ -6,55 +7,61 @@ import { User } from '../../user/user.model';
 
 export class ProfileService {
   static async getAthleteDetails(athleteId: string) {
-    // 1️⃣ Fetch athlete (all fields)
+    //Fetch athlete first (must exist)
     const athlete = await AthleteModel.findById(athleteId).lean();
-    console.log('Athlete:', athlete);
-
     if (!athlete) throw new Error('Athlete not found');
 
-    // 2️⃣ Get coach name
-    let coachName = '';
-    if (athlete.coachId) {
-      const coach = await CoachModel.findById({ _id: athlete.coachId })
-        .select('name')
-        .lean();
-      coachName = coach?.name || '';
-    } else {
-      const user = await User.findById({ _id: athleteId })
-        .select('name')
-        .lean();
-      coachName = user?.name || '';
-    }
+    //Run independent queries in parallel
+    const [
+      coachName,
+      timeline,
+      show,
+    ] = await Promise.all([
+      getCoachName(athlete),
+      TimelineHistoryModel.findOne()
+        .select('nextCheckInDate phase')
+        .lean(),
+      ShowManagementModel.findOne()
+        .sort({ createdAt: -1 })
+        .select('date')
+        .lean(),
+    ]);
 
-    // 3️⃣ Fetch latest timeline info
-    const timeline = await TimelineHistoryModel.findOne()
-      .select('nextCheckInDate')
-      .lean();
-    console.log('Timeline:', timeline);
+    // 3️⃣ Countdown calculation (no DB cost)
+    const countDown = show?.date
+      ? calculateCountdown(show.date)
+      : 0;
 
-    // 4️⃣ Fetch show management data
-    const shows = await ShowManagementModel.findOne()
-      .sort({ createdAt: -1 })
-      .lean();
-    const countDown = calculateCountdown(shows?.date!);
-    console.log('Shows:', shows);
-
-    // 5️⃣ Combine response
     return {
       athlete,
       coachName,
       timeline,
-      shows,
+      show,
       countDown,
     };
   }
 }
 
-// Calculate countdown in days
-const calculateCountdown = (dateStr: string) => {
-  const showDate = new Date(dateStr);
-  const now = new Date();
-  const diffMs = showDate.getTime() - now.getTime();
+const getCoachName = async (athlete: any): Promise<string> => {
+  if (athlete.coachId) {
+    const coach = await CoachModel.findById(athlete.coachId)
+      .select('name')
+      .lean();
+    return coach?.name || '';
+  }
+
+  const user = await User.findById(athlete._id)
+    .select('name')
+    .lean();
+  return user?.name || '';
+};
+
+const calculateCountdown = (dateStr: string): number => {
+  const showDate = new Date(dateStr).getTime();
+  const now = Date.now();
+
+  const diffMs = showDate - now;
   if (diffMs <= 0) return 0;
-  return Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+  return Math.ceil(diffMs / (1000 * 60 * 60 * 24));
 };
