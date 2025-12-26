@@ -17,6 +17,8 @@ import { emailHelper } from '../../../../helpers/emailHelper';
 import cryptoToken from '../../../../util/cryptoToken';
 import { ResetToken } from '../../resetToken/resetToken.model';
 import { NotificationService } from '../../notification/notification.service';
+import { ICoach } from './coachInterface';
+import unlinkFile from '../../../../shared/unlinkFile';
 
 export class CoachAuthService {
   /**
@@ -328,23 +330,24 @@ export class CoachAuthService {
    * @param updateData Profile update data
    * @returns Updated coach profile
    */
-  async updateProfile(user: JwtPayload, updateData: Partial<any>) {
-    // Remove sensitive fields that shouldn't be updated here
-    const { password, email, role, ...safeUpdateData } = updateData;
-
-    const coach = await CoachModel.findByIdAndUpdate(
-      user.id,
-      { $set: safeUpdateData },
-      { new: true, runValidators: true }
-    )
-      .select('-password -authentication')
-      .lean();
-
-    if (!coach) {
-      throw new ApiError(StatusCodes.NOT_FOUND, 'Coach not found');
+  async updateProfile(coachId: string, payload: Partial<ICoach>) {
+    const isExistUser = await CoachModel.isExistCoachById(coachId);
+    if (!isExistUser) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, "Athlete doesn't exist!");
     }
 
-    return coach;
+    //unlink file here
+    if (payload.image) {
+      unlinkFile(isExistUser.image);
+    }
+
+    const updateDoc = await CoachModel.findOneAndUpdate(
+      { _id: coachId },
+      { $set: payload },
+      { new: true }
+    );
+
+    return updateDoc;
   }
 
   /**
@@ -355,7 +358,10 @@ export class CoachAuthService {
   async logoutCoach(user: JwtPayload) {
     // In a stateless JWT system, logout is handled client-side
     // But we can update last active timestamp
-    await CoachModel.findByIdAndUpdate(user.id, { lastActive: new Date() });
+    await CoachModel.findByIdAndUpdate(user.id, {
+      lastActive: new Date(),
+      isActive: 'In-Active',
+    });
 
     return { message: 'Logged out successfully' };
   }

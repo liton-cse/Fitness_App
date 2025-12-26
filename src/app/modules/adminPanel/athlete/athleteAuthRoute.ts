@@ -2,6 +2,7 @@ import express from 'express';
 import { USER_ROLES } from '../../../../enums/user';
 import { AuthleteController } from './athleteAuthController';
 import auth from '../../../middlewares/auth';
+import fileUploadHandler from '../../../middlewares/fileUploadHandler';
 
 const router = express.Router();
 const authController = new AuthleteController();
@@ -23,6 +24,7 @@ router.get('/profile', auth(USER_ROLES.ATHLETE), authController.getProfile);
 router.patch(
   '/profile',
   auth(USER_ROLES.ATHLETE),
+  fileUploadHandler(),
   authController.updateProfile
 );
 

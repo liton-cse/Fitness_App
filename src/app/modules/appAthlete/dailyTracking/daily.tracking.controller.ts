@@ -13,6 +13,8 @@ export class DailyTrackingController {
    */
   createDailyTracking = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
+      console.log('mohosin vai');
+      console.log(req.body);
       const payload = {
         ...req.body,
         userId: req.user.id,

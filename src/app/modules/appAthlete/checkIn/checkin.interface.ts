@@ -27,6 +27,7 @@ export interface Training {
 
 export interface ICheckInInfo {
   userId: Types.ObjectId;
+  coachId?: string;
   currentWeight: number;
   averageWeight: number;
   questionAndAnswer: QuestionAnswer[];
@@ -37,4 +38,5 @@ export interface ICheckInInfo {
   dailyNote: string;
   image: string[];
   video: string[];
+  checkInComplete?: boolean;
 }

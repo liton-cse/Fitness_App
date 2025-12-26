@@ -11,8 +11,8 @@ const isSundayEvening = () => {
   return now.getDay() === 0 && now.getHours() >= 18; // Sunday after 6 PM
 };
 
-const getCurrentWeekLabel = async (coachId: string) => {
-  const count = await PEDDatabaseModel.countDocuments({ coachId });
+const getCurrentWeekLabel = async () => {
+  const count = await PEDDatabaseModel.countDocuments();
   return `week_${count || 1}`;
 };
 
@@ -25,32 +25,28 @@ const getNextWeekLabel = (week: string) => {
 
 export class PEDDatabaseService {
   async createWeeklyPEDDatabase(payload: {
-    coachId: string;
     category: string;
     subCategory: { name: string }[];
   }) {
-    const { coachId, category, subCategory } = payload;
+    const { category, subCategory } = payload;
 
-    let week = await getCurrentWeekLabel(coachId);
+    let week = await getCurrentWeekLabel();
 
     // ✅ Sunday evening → create next week automatically
     if (isSundayEvening()) {
       const nextWeek = getNextWeekLabel(week);
 
       const exists = await PEDDatabaseModel.findOne({
-        coachId,
         week: nextWeek,
       });
 
       if (!exists) {
         const prevWeekDoc = await PEDDatabaseModel.findOne({
-          coachId,
           week,
         });
 
         if (prevWeekDoc) {
           await PEDDatabaseModel.create({
-            coachId,
             week: nextWeek,
             categories: JSON.parse(JSON.stringify(prevWeekDoc.categories)),
           });
@@ -61,11 +57,10 @@ export class PEDDatabaseService {
     }
 
     // ✅ Get or create current week document
-    let weekDoc = await PEDDatabaseModel.findOne({ coachId, week });
+    let weekDoc = await PEDDatabaseModel.findOne({ week });
 
     if (!weekDoc) {
       weekDoc = await PEDDatabaseModel.create({
-        coachId,
         week,
         categories: [],
       });
@@ -104,11 +99,11 @@ export class PEDDatabaseService {
     return weekDoc;
   }
 
-  async getPEDByWeek(coachId: string, week: string) {
-    return PEDDatabaseModel.findOne({ coachId, week }).lean();
+  async getPEDByWeek(week: string) {
+    return PEDDatabaseModel.findOne({ week }).lean();
   }
 
-  async getAllPED(coachId: string) {
-    return PEDDatabaseModel.find({ coachId }).sort({ createdAt: 1 }).lean();
+  async getAllPED() {
+    return PEDDatabaseModel.find().sort({ createdAt: 1 }).lean();
   }
 }

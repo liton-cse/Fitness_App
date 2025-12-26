@@ -3,6 +3,7 @@ import { StatusCodes } from 'http-status-codes';
 import catchAsync from '../../../../shared/catchAsync';
 import sendResponse from '../../../../shared/sendResponse';
 import { AthleteAuthService } from './athleteAuthService';
+import { getSingleFilePath } from '../../../../shared/getFilePath';
 
 const authService = new AthleteAuthService();
 
@@ -119,7 +120,15 @@ export class AuthleteController {
    */
   updateProfile = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
-      const result = await authService.updateProfile(req.user, req.body);
+      const athleteId = req.user.id;
+
+      const image = getSingleFilePath(req.files, 'image');
+      const data = {
+        image,
+        ...req.body,
+      };
+
+      const result = await authService.updateProfile(athleteId, data);
 
       sendResponse(res, {
         success: true,

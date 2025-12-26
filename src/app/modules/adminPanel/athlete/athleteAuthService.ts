@@ -17,6 +17,8 @@ import cryptoToken from '../../../../util/cryptoToken';
 import { ResetToken } from '../../resetToken/resetToken.model';
 import { AthleteModel } from './athleteModel';
 import { NotificationService } from '../../notification/notification.service';
+import { IAthlete } from './athleteInterface';
+import unlinkFile from '../../../../shared/unlinkFile';
 
 export class AthleteAuthService {
   /**
@@ -302,27 +304,34 @@ export class AthleteAuthService {
   /**
    * Update athlete profile
    */
-  async updateProfile(user: JwtPayload, updateData: Partial<any>) {
-    const { password, email, ...safeUpdate } = updateData;
+  async updateProfile(athleteId: string, payload: Partial<IAthlete>) {
+    const isExistUser = await AthleteModel.isExistAthleteById(athleteId);
+    if (!isExistUser) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, "Athlete doesn't exist!");
+    }
 
-    const athlete = await AthleteModel.findByIdAndUpdate(
-      user.id,
-      { $set: safeUpdate },
-      { new: true, runValidators: true }
-    )
-      .select('-password -authentication')
-      .lean();
+    //unlink file here
+    if (payload.image) {
+      unlinkFile(isExistUser.image);
+    }
 
-    if (!athlete)
-      throw new ApiError(StatusCodes.NOT_FOUND, 'Athlete not found');
-    return athlete;
+    const updateDoc = await AthleteModel.findOneAndUpdate(
+      { _id: athleteId },
+      { $set: payload },
+      { new: true }
+    );
+
+    return updateDoc;
   }
 
   /**
    * Logout athlete
    */
   async logoutAthlete(user: JwtPayload) {
-    await AthleteModel.findByIdAndUpdate(user.id, { lastActive: new Date() });
+    await AthleteModel.findByIdAndUpdate(user.id, {
+      lastActive: new Date(),
+      isActive: 'In-Active',
+    });
     return { message: 'Logged out successfully' };
   }
 

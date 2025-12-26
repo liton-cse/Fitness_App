@@ -40,6 +40,7 @@ const TrainingSchema = new Schema<Training>({
 const CheckInSchema = new Schema<ICheckInInfo>(
   {
     userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    coachId: { type: String },
     currentWeight: { type: Number, required: true },
     averageWeight: { type: Number, required: true },
     questionAndAnswer: { type: [QuestionAnswerSchema], required: true },
@@ -50,6 +51,7 @@ const CheckInSchema = new Schema<ICheckInInfo>(
     dailyNote: { type: String, required: true },
     image: { type: [String], default: [] },
     video: { type: [String], default: [] },
+    checkInComplete: { type: Boolean },
   },
   { timestamps: true }
 );

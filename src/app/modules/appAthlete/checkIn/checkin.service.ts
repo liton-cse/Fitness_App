@@ -10,6 +10,7 @@ import {
 import { DailyTrackingModel } from '../dailyTracking/daily.tracking.model';
 import { CoachModel } from '../../adminPanel/coach/coachModel';
 import { sendCheckingNotification } from '../../notification/notification.service';
+import { NotificationModel } from '../../notification/notification.model';
 
 export class CheckInService {
   /**
@@ -152,13 +153,44 @@ export class CheckInService {
    * @returns updated CheckIn document or null
    */
   async updateCheckIn(
-    id: Types.ObjectId,
+    id: string,
+    coachId: string,
     payload: Partial<ICheckInInfo>
   ): Promise<ICheckInInfo | null> {
-    const result = await CheckInModel.findByIdAndUpdate(id, payload, {
-      new: true,
-    });
-    return result;
+    const updateData = {
+      coachId,
+      ...payload,
+    };
+
+    // ✅ Run DB calls in parallel
+    const [updatedCheckIn, coach, notification] = await Promise.all([
+      CheckInModel.findByIdAndUpdate(id, updateData, {
+        new: true,
+        runValidators: true,
+      }),
+
+      CoachModel.findById({ _id: coachId }).select('name email').lean(),
+
+      NotificationModel.findOne({ userId: id })
+        .sort({ createdAt: -1 })
+        .select('fcmToken')
+        .lean(),
+    ]);
+    const CoachName = coach?.name;
+    const CoachEmail = coach?.email;
+    // ✅ Safe optional chaining (fix TS + runtime crash)
+    if (notification?.fcmToken) {
+      const title = `Check-in Completed by ${CoachName}`;
+      const description = `Your check-in data are so great. So you carry on. If you want to know any information. Please check: ${CoachEmail}`;
+      await sendCheckingNotification(
+        title,
+        description,
+        notification.fcmToken,
+        coachId
+      );
+    }
+
+    return updatedCheckIn;
   }
 
   /**
@@ -168,6 +200,16 @@ export class CheckInService {
    */
   async deleteCheckIn(id: Types.ObjectId): Promise<ICheckInInfo | null> {
     const result = await CheckInModel.findByIdAndDelete(id);
+    return result;
+  }
+
+  async updateCheckInStatus(athleteId: string, coachId: string) {
+    const result = await CheckInModel.findOneAndUpdate(
+      { userId: athleteId },
+      { $set: { checkInComplete: new Date(), coachId } },
+      { new: true }
+    );
+
     return result;
   }
 }

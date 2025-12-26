@@ -32,6 +32,12 @@ router.get('/:id', controller.getCheckInById);
 
 // Update a Check-in by ID
 router.patch('/:id', auth(USER_ROLES.COACH), controller.updateCheckIn);
+//update the check in status
+router.patch(
+  '/status/:athleteId',
+  auth(USER_ROLES.COACH),
+  controller.UpdateCheckInStatus
+);
 
 // Delete a Check-in by ID
 router.delete('/:id', auth(USER_ROLES.SUPER_ADMIN), controller.deleteCheckIn);

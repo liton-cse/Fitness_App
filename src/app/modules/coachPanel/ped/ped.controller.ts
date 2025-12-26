@@ -19,12 +19,9 @@ export class PEDDatabaseController {
   createWeeklyPEDDatabase = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
       // assuming coachId is attached by auth middleware
-      const coachId = (req as any).user?.id;
-
       const { category, subCategory } = req.body;
 
       const result = await pedService.createWeeklyPEDDatabase({
-        coachId,
         category,
         subCategory,
       });
@@ -44,9 +41,7 @@ export class PEDDatabaseController {
    */
   getPEDByAthlete = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
-      const coachId = req.user.id;
-      console.log(coachId);
-      const result = await pedService.getAllPED(coachId);
+      const result = await pedService.getAllPED();
 
       sendResponse(res, {
         success: true,
@@ -65,8 +60,8 @@ export class PEDDatabaseController {
   getPEDByWeek = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
       const { week } = req.params;
-      const coachId = req.user.id;
-      const result = await pedService.getPEDByWeek(coachId, week);
+
+      const result = await pedService.getPEDByWeek(week);
 
       sendResponse(res, {
         success: true,

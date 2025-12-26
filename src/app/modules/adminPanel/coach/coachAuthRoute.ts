@@ -2,6 +2,7 @@ import express from 'express';
 import { USER_ROLES } from '../../../../enums/user';
 import { CoachAuthController } from './coachAuthController';
 import auth from '../../../middlewares/auth';
+import fileUploadHandler from '../../../middlewares/fileUploadHandler';
 
 const router = express.Router();
 const authController = new CoachAuthController();
@@ -20,7 +21,12 @@ router.post('/reset-password', authController.resetPassword);
 // Protected routes (require authentication)
 router.get('/profile', auth(USER_ROLES.COACH), authController.getProfile);
 
-router.patch('/profile', auth(USER_ROLES.COACH), authController.updateProfile);
+router.patch(
+  '/profile',
+  auth(USER_ROLES.COACH),
+  fileUploadHandler(),
+  authController.updateProfile
+);
 
 router.patch(
   '/change-password',

@@ -21,6 +21,7 @@ import { getAthleteTimelineController } from '../app/modules/coachPanel/timeLine
 import { TimeLineRouter } from '../app/modules/coachPanel/timeLine/timeline.routes';
 import { ProfileRouter } from '../app/modules/appAthlete/profile/profile.routes';
 import { PEDDatabaseRouter } from '../app/modules/coachPanel/ped/ped.route';
+import { DashboardRouter } from '../app/modules/adminPanel/dashboard/dashboard.route';
 const router = express.Router();
 
 const apiRoutes = [
@@ -43,6 +44,10 @@ const apiRoutes = [
   {
     path: '/auth/athlete',
     route: AthleteAuthRoutes,
+  },
+  {
+    path: '/dashboard',
+    route: DashboardRouter,
   },
   {
     path: '/athlete',
@@ -105,9 +110,9 @@ const apiRoutes = [
     route: ProfileRouter,
   },
   {
-    path:'/ped',
-    route:PEDDatabaseRouter
-  }
+    path: '/ped',
+    route: PEDDatabaseRouter,
+  },
 ];
 
 apiRoutes.forEach(route => router.use(route.path, route.route));

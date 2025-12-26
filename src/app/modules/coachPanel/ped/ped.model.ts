@@ -30,7 +30,8 @@ const CategorySchema = new Schema<ICategory>(
 
 const PEDDatabaseSchema = new Schema<IPEDDatabase>(
   {
-    coachId: { type: String, required: true },
+    athleteId: { type: String, default: '' },
+    coachId: { type: String, default: '' },
     week: { type: String, required: true },
     categories: { type: [CategorySchema], default: [] },
   },

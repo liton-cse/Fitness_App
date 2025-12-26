@@ -10,7 +10,7 @@ const controller = new PEDDatabaseController();
  * PED Database Routes
  */
 router.post('/', auth(USER_ROLES.COACH), controller.createWeeklyPEDDatabase);
-router.get('/', auth(USER_ROLES.COACH), controller.getPEDByAthlete);
-router.get('/:week', auth(USER_ROLES.COACH), controller.getPEDByWeek);
+router.get('/', controller.getPEDByAthlete);
+router.get('/:week', controller.getPEDByWeek);
 
 export const PEDDatabaseRouter = router;

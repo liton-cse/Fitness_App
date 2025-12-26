@@ -100,8 +100,9 @@ export class CheckInController {
    */
   updateCheckIn = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
-      const id: Types.ObjectId = new Types.ObjectId(req.params.id);
-      const result = await checkInService.updateCheckIn(id, req.body);
+      const id = req.params.id;
+      const coachId = req.user.id;
+      const result = await checkInService.updateCheckIn(id, coachId, req.body);
       sendResponse(res, {
         success: true,
         statusCode: StatusCodes.OK,
@@ -119,6 +120,25 @@ export class CheckInController {
     async (req: Request, res: Response, next: NextFunction) => {
       const id: Types.ObjectId = new Types.ObjectId(req.params.id);
       const result = await checkInService.deleteCheckIn(id);
+
+      sendResponse(res, {
+        success: true,
+        statusCode: StatusCodes.OK,
+        message: 'Check-in deleted successfully',
+        data: result,
+      });
+    }
+  );
+
+  /**
+   * Update check in completed yes or not ....
+   * PATCH /api/v1/checkin/status/:athleteId
+   */
+  UpdateCheckInStatus = catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const id = req.params.athleteId;
+      const coachId = req.user.id;
+      const result = await checkInService.updateCheckInStatus(id, coachId);
 
       sendResponse(res, {
         success: true,
