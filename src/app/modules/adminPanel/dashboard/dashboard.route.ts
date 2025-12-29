@@ -11,5 +11,6 @@ router.get(
   auth(USER_ROLES.SUPER_ADMIN, USER_ROLES.COACH),
   controller.dashboardInfo
 );
+router.get('/alert', controller.dashboardAlert);
 
 export const DashboardRouter = router;

@@ -27,4 +27,19 @@ export class DashboardController {
       });
     }
   );
+
+  /**
+   * GET api/v1/dashboard
+   */
+  dashboardAlert = catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const result = await dashboardService.getDashboardAlert();
+      sendResponse(res, {
+        success: true,
+        statusCode: StatusCodes.OK,
+        message: 'Dashboard data fetched successfully',
+        data: result,
+      });
+    }
+  );
 }

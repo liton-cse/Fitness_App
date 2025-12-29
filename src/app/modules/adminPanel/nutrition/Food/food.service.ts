@@ -22,7 +22,7 @@ export class FoodItemService {
     const query: any = {};
 
     if (search) {
-      query.category = { $regex: search, $options: 'i' };
+      query.name = { $regex: search, $options: 'i' };
     }
     if (filter) {
       query.name = { $regex: filter, $options: 'i' };

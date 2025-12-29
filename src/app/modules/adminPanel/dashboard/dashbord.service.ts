@@ -18,7 +18,7 @@ export class DashboardService {
       totalDailyTrackingToday,
       totalCheckInThisWeek,
     ] = await Promise.all([
-      // ✅ ONE query for all athlete stats
+      // ✅ ONE query for all athlete statss
       AthleteModel.aggregate([
         {
           $facet: {
@@ -59,6 +59,43 @@ export class DashboardService {
       totalCoach,
       totalDailyTrackingToday,
       totalCheckInThisWeek,
+    };
+  }
+
+  async getDashboardAlert() {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    /* ---------------- Total Athletes ---------------- */
+    const totalAthlete = await AthleteModel.countDocuments();
+
+    /* -------- Athletes with Elevated Blood Pressure --------
+     Systolic: 120–129
+     Diastolic: < 80
+  */
+    const elevatedBpAthlete = await DailyTrackingModel.countDocuments({
+      $expr: {
+        $and: [
+          { $gte: [{ $toInt: '$bloodPressure.systolic' }, 120] },
+          { $lte: [{ $toInt: '$bloodPressure.systolic' }, 129] },
+          { $lt: [{ $toInt: '$bloodPressure.diastolic' }, 80] },
+        ],
+      },
+    });
+
+    /* -------- Total Submitted Daily Tracking (Today) -------- */
+    const totalSubmittedDailyTracking = await DailyTrackingModel.countDocuments(
+      {
+        createdAt: { $gte: today },
+      }
+    );
+
+    /* -------- Missed Daily Tracking -------- */
+    const totalMissedDailyTracking = totalAthlete - totalSubmittedDailyTracking;
+
+    return {
+      elevatedBpAthlete,
+      totalMissedDailyTracking,
     };
   }
 }
