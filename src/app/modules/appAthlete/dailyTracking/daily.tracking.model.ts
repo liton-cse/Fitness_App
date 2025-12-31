@@ -106,10 +106,10 @@ const DailyTrackingSchema = new Schema<DailyTracking>(
   {
     date: { type: String, required: true },
     userId: {
-      type: Types.ObjectId,
-      ref: 'Athlete',
+      type: String,
       required: true,
     },
+    coachId: { type: String, required: true },
     weight: { type: Number, required: true },
     sleepHour: { type: Number, required: true },
     sleepQuality: { type: String, required: true },

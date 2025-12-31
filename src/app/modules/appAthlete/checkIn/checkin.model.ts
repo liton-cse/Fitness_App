@@ -9,8 +9,9 @@ import {
 
 // Sub-schema for question and answer
 const QuestionAnswerSchema = new Schema<QuestionAnswer>({
-  question: { type: String, required: true },
-  answer: { type: String, required: true },
+  question: { type: String },
+  answer: { type: String },
+  status: { type: Boolean, default: false },
 });
 
 // Sub-schema for well-being
@@ -39,7 +40,7 @@ const TrainingSchema = new Schema<Training>({
 // Main Check-in Schema
 const CheckInSchema = new Schema<ICheckInInfo>(
   {
-    userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    userId: { type: String, required: true },
     coachId: { type: String },
     currentWeight: { type: Number, required: true },
     averageWeight: { type: Number, required: true },
@@ -50,8 +51,8 @@ const CheckInSchema = new Schema<ICheckInInfo>(
     trainingFeedback: { type: String, required: true },
     dailyNote: { type: String, required: true },
     image: { type: [String], default: [] },
-    video: { type: [String], default: [] },
-    checkInComplete: { type: Boolean },
+    media: { type: [String], default: [] },
+    checkinCompleted: { type: String, default: 'Pending' },
   },
   { timestamps: true }
 );

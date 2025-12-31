@@ -6,7 +6,7 @@ import { DashboardService } from './dashbord.service';
 
 const dashboardService = new DashboardService();
 
-export class DashboardController {
+export class adminDashboardController {
   /**
    * get Dashboard data
    * Total athlete, total coach, total enhanced athlete, total natural athlete,

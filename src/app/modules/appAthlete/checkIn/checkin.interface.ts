@@ -1,8 +1,7 @@
-import { Types } from 'mongoose';
-
 export interface QuestionAnswer {
-  question: string;
-  answer: string;
+  question?: string;
+  answer?: string;
+  status?: boolean;
 }
 
 export interface WellBeing {
@@ -26,7 +25,7 @@ export interface Training {
 }
 
 export interface ICheckInInfo {
-  userId: Types.ObjectId;
+  userId: String;
   coachId?: string;
   currentWeight: number;
   averageWeight: number;
@@ -36,7 +35,7 @@ export interface ICheckInInfo {
   training: Training;
   trainingFeedback: string;
   dailyNote: string;
+  checkinCompleted: string;
   image: string[];
-  video: string[];
-  checkInComplete?: boolean;
+  media: string[];
 }

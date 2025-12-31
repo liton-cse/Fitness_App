@@ -1,6 +1,7 @@
 import { DailyTrackingModel } from './daily.tracking.model';
 import { DailyTracking } from './daily.tracking.interface';
 import { calculateNumericAverages } from '../../../../util/calculate.average';
+import { weeklyReportService } from '../../athleteWeeklyReport/history.service';
 
 export class DailyTrackingService {
   /**
@@ -14,7 +15,10 @@ export class DailyTrackingService {
   /**
    * Get all daily tracking entries
    */
-  async getAllDailyTracking(userId: string): Promise<{
+  async getAllDailyTracking(
+    userId: string,
+    coachId: string
+  ): Promise<{
     weekData: (Omit<DailyTracking, keyof Document> & { day: string })[];
     averages: ReturnType<typeof calculateNumericAverages>;
   }> {
@@ -51,13 +55,13 @@ export class DailyTrackingService {
       .lean();
 
     const dayNames = [
-      'Sunday',
       'Monday',
       'Tuesday',
       'Wednesday',
       'Thursday',
       'Friday',
       'Saturday',
+      'Sunday',
     ];
 
     const weekData = data.map(item => {
@@ -70,6 +74,7 @@ export class DailyTrackingService {
     });
 
     const averages = calculateNumericAverages(data);
+    await weeklyReportService({ userId, coachId, ...averages });
 
     return { weekData, averages };
   }

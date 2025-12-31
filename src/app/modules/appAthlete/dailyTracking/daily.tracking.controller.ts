@@ -3,6 +3,7 @@ import { StatusCodes } from 'http-status-codes';
 import catchAsync from '../../../../shared/catchAsync';
 import sendResponse from '../../../../shared/sendResponse';
 import { DailyTrackingService } from './daily.tracking.service';
+import { AthleteModel } from '../../adminPanel/athlete/athleteModel';
 
 const dailyTrackingService = new DailyTrackingService();
 
@@ -13,11 +14,19 @@ export class DailyTrackingController {
    */
   createDailyTracking = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
-      console.log('mohosin vai');
-      console.log(req.body);
+      const athlete = await AthleteModel.findById(req.user.id).select(
+        'coachId'
+      );
+
+      if (!athlete || !athlete.coachId) {
+        throw new Error('Coach not assigned to this athlete');
+      }
+      console.log(athlete.coachId);
+
       const payload = {
         ...req.body,
         userId: req.user.id,
+        coachId: athlete.coachId,
       };
       const result = await dailyTrackingService.createDailyTracking(payload);
 
@@ -37,7 +46,11 @@ export class DailyTrackingController {
   getAllDailyTracking = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
       const userId = req.params.userId;
-      const result = await dailyTrackingService.getAllDailyTracking(userId);
+      const coachId = req.user.id;
+      const result = await dailyTrackingService.getAllDailyTracking(
+        userId,
+        coachId
+      );
 
       sendResponse(res, {
         success: true,

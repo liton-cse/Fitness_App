@@ -50,7 +50,8 @@ export type WomenSymptoms = (typeof WOMEN_SYMPTOMS_VALUES)[number];
 
 export interface DailyTracking {
   date: string;
-  userId: Types.ObjectId;
+  userId: string;
+  coachId: string;
   weight: number;
   sleepHour: number;
   sleepQuality: string;

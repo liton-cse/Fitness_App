@@ -124,6 +124,9 @@ export class CoachAuthController {
     async (req: Request, res: Response, next: NextFunction) => {
       const coachId = req.user.id;
       const image = getSingleFilePath(req.files, 'image');
+      console.log(coachId);
+      console.log(image);
+      console.log(req.body);
       const data = {
         image,
         ...req.body,

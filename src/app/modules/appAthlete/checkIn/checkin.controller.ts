@@ -5,6 +5,7 @@ import sendResponse from '../../../../shared/sendResponse';
 import { CheckInService } from './checkin.service';
 import { Types } from 'mongoose';
 import { getMultipleFilesPath } from '../../../../shared/getFilePath';
+import { AthleteModel } from '../../adminPanel/athlete/athleteModel';
 
 const checkInService = new CheckInService();
 
@@ -16,14 +17,21 @@ export class CheckInController {
   createCheckIn = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
       const images = getMultipleFilesPath(req.files, 'image');
-      const videos = getMultipleFilesPath(req.files, 'video');
+      const videos = getMultipleFilesPath(req.files, 'media');
+      const athlete = await AthleteModel.findById({ _id: req.user.id }).select(
+        'coachId'
+      );
       const payload = {
         ...req.body,
         userId: req.user.id,
+        coachId: athlete?.coachId,
         image: images,
         video: videos,
       };
-      const result = await checkInService.createCheckIn(payload);
+      const result = await checkInService.createCheckIn(
+        payload,
+        payload.coachId
+      );
 
       sendResponse(res, {
         success: true,
@@ -57,6 +65,23 @@ export class CheckInController {
       });
     }
   );
+
+  /**
+   * Returns check in old data athlete's check-in day
+   */
+  getOldCheckInData = catchAsync(async (req: Request, res: Response) => {
+    const userId = req.user.id;
+    const skip = req.query.skip;
+
+    const result = await checkInService.getOldCheckInData(userId, Number(skip));
+
+    sendResponse(res, {
+      success: true,
+      statusCode: StatusCodes.OK,
+      message: 'Old data fetch successfully',
+      data: result,
+    });
+  });
 
   /**
    * Returns next check-in date based on athlete's check-in day

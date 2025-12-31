@@ -22,6 +22,8 @@ import { TimeLineRouter } from '../app/modules/coachPanel/timeLine/timeline.rout
 import { ProfileRouter } from '../app/modules/appAthlete/profile/profile.routes';
 import { PEDDatabaseRouter } from '../app/modules/coachPanel/ped/ped.route';
 import { DashboardRouter } from '../app/modules/adminPanel/dashboard/dashboard.route';
+import { WeeklyCheckInRouter } from '../app/modules/adminPanel/weeklyCheckIn/weekly.route';
+
 const router = express.Router();
 
 const apiRoutes = [
@@ -112,6 +114,10 @@ const apiRoutes = [
   {
     path: '/ped',
     route: PEDDatabaseRouter,
+  },
+  {
+    path: '/weekly',
+    route: WeeklyCheckInRouter,
   },
 ];
 

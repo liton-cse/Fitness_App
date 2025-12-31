@@ -1,7 +1,6 @@
 import CheckInModel from './checkin.model';
 import { Types } from 'mongoose';
 import { ICheckInInfo } from './checkin.interface';
-import { meta } from 'zod/v4/core';
 import { AthleteModel } from '../../adminPanel/athlete/athleteModel';
 import {
   getNextCheckInDateFormatted,
@@ -18,19 +17,15 @@ export class CheckInService {
    * @param payload - Check-in data
    * @returns created CheckIn document
    */
-  async createCheckIn(payload: Partial<ICheckInInfo>): Promise<ICheckInInfo> {
+  async createCheckIn(
+    payload: Partial<ICheckInInfo>,
+    coachId: string
+  ): Promise<ICheckInInfo> {
     // 1. Create check-in first
     const result = await CheckInModel.create(payload);
 
-    // 2. Get athlete's coachId (only required field)
-    const athlete = await AthleteModel.findById(payload.userId)
-      .select('coachId')
-      .lean();
-
-    if (!athlete?.coachId) return result;
-
     // 3. Get coach notification data
-    const coach = await CoachModel.findById(athlete.coachId)
+    const coach = await CoachModel.findById(payload.coachId)
       .select('fcmToken name')
       .lean();
 
@@ -39,17 +34,19 @@ export class CheckInService {
     // 4. Send notification
     const title = 'Check-in completed';
     const description = `${coach.name}, an athlete has completed his check-in.Please review it.`;
-
-    await sendCheckingNotification(
-      title,
-      description,
-      coach.fcmToken,
-      athlete.coachId.toString()
-    );
+    // const coachId = payload.coachId;
+    await sendCheckingNotification(title, description, coach.fcmToken, coachId);
 
     return result;
   }
 
+  async getOldCheckInData(userId: string, value: number | 1) {
+    const oldData = await CheckInModel.findOne({ userId })
+      .sort({ createdAt: -1 })
+      .skip(value)
+      .lean();
+    return oldData;
+  }
   /**
    * Get all Check-in records for a user
    * @param userId - User ID
@@ -205,8 +202,8 @@ export class CheckInService {
 
   async updateCheckInStatus(athleteId: string, coachId: string) {
     const result = await CheckInModel.findOneAndUpdate(
-      { userId: athleteId },
-      { $set: { checkInComplete: new Date(), coachId } },
+      { userId: athleteId, coachId },
+      { $set: { checkinCompleted: 'Completed' } },
       { new: true }
     );
 

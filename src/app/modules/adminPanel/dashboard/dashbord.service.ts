@@ -69,10 +69,6 @@ export class DashboardService {
     /* ---------------- Total Athletes ---------------- */
     const totalAthlete = await AthleteModel.countDocuments();
 
-    /* -------- Athletes with Elevated Blood Pressure --------
-     Systolic: 120–129
-     Diastolic: < 80
-  */
     const elevatedBpAthlete = await DailyTrackingModel.countDocuments({
       $expr: {
         $and: [
@@ -83,14 +79,12 @@ export class DashboardService {
       },
     });
 
-    /* -------- Total Submitted Daily Tracking (Today) -------- */
     const totalSubmittedDailyTracking = await DailyTrackingModel.countDocuments(
       {
         createdAt: { $gte: today },
       }
     );
 
-    /* -------- Missed Daily Tracking -------- */
     const totalMissedDailyTracking = totalAthlete - totalSubmittedDailyTracking;
 
     return {
