@@ -16,6 +16,11 @@ router.post('/:userId', auth(USER_ROLES.COACH), controller.addTrainingPlan);
  * Example: /api/v1/training-plans?name=Leg
  */
 router.get('/:userId', controller.getTrainingPlansByName);
+router.get(
+  '/id/:id',
+  auth(USER_ROLES.ATHLETE),
+  controller.getTrainingPlansById
+);
 
 /**
  * Update training plan by ID

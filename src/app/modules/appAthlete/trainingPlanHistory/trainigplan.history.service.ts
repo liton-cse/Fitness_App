@@ -1,6 +1,25 @@
-import { calculateOneRM, calculatePR } from '../../../../util/calculate.pr';
 import { ITrainingPushDayHistory } from './trainigplan.history.interface';
 import { TrainingPushDayHistoryModel } from './trainingplan.history.model';
+
+function calculateOneRM(weight: number, reps: number): number {
+  return Math.round(weight * (1 + reps / 30));
+}
+
+function calculateTotalVolume(
+  pushData: { weight: number; reps: number }[]
+): number {
+  return pushData.reduce((total, set) => total + set.weight * set.reps, 0);
+}
+function calculateVolumePR(previousHistories: any[], currentVolume: number) {
+  const previousVolumes = previousHistories.map(h =>
+    calculateTotalVolume(h.pushData)
+  );
+
+  const maxPreviousVolume = Math.max(...previousVolumes, 0);
+
+  return currentVolume > maxPreviousVolume;
+}
+// 1RM = Weight × (1 + Reps / 30)
 
 export class TrainingPushDayHistoryService {
   /**
@@ -25,35 +44,47 @@ export class TrainingPushDayHistoryService {
       };
     }
 
-    const histories = await TrainingPushDayHistoryModel.find(query).lean();
+    const histories = await TrainingPushDayHistoryModel.find(query)
+      .sort({ createdAt: 1 })
+      .lean();
 
-    if (histories.length < 2) {
+    if (!histories.length) {
       return {
-        histories,
+        histories: [],
         pr: {
-          weightPR: false,
-          repsPR: false,
-          oneRMPR: false,
-          totalPR: 0,
+          volumePR: false,
         },
       };
     }
 
-    const previous = histories.slice(0, -1).flatMap(h => h.pushData);
-    const current = histories[histories.length - 1].pushData;
+    const enrichedHistories = histories.map(history => {
+      const totalWeight = calculateTotalVolume(history.pushData);
 
-    const prResult = calculatePR(previous, current);
+      return {
+        ...history,
+        totalWeight,
+        pushData: history.pushData.map(set => ({
+          ...set,
+          oneRM: calculateOneRM(set.weight, set.reps),
+        })),
+      };
+    });
 
-    const result = histories.map(history => ({
-      ...history,
-      pushData: history.pushData.map((set: any) => ({
-        ...set,
-        oneRM: calculateOneRM(set.weight, set.reps),
-      })),
-      pr: prResult.totalPR,
-    }));
+    // 🟢 PR CHECK (only last workout)
+    const currentHistory = enrichedHistories[enrichedHistories.length - 1];
+    const previousHistories = enrichedHistories.slice(0, -1);
 
-    return result;
+    const volumePR = calculateVolumePR(
+      previousHistories,
+      currentHistory.totalWeight
+    );
+
+    return {
+      histories: enrichedHistories,
+      pr: {
+        volumePR,
+      },
+    };
   }
 
   /**

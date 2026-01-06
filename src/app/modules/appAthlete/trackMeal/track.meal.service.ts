@@ -15,6 +15,23 @@ interface DeleteFoodParams {
   mealId?: string;
   foodId?: string | undefined;
 }
+
+function getDayName(date: string): string {
+  return new Date(date).toLocaleDateString('en-US', { weekday: 'long' });
+}
+
+function getLast7Days(): string[] {
+  const dates: string[] = [];
+
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    dates.push(d.toISOString().split('T')[0]); // YYYY-MM-DD
+  }
+
+  return dates;
+}
+
 export class DailyTrackingService {
   /**
    * Create or add TrackMeal (max 7 per day)
@@ -60,41 +77,37 @@ export class DailyTrackingService {
    * Get daily tracking (optional date filter)
    */
   async getDailyTracking(userId: string, date?: string) {
-    const filter: any = { userId };
-    if (date) filter.date = date;
+    const targetDate = date ?? new Date().toISOString().split('T')[0];
+
+    const filter = {
+      userId,
+      date: targetDate,
+    };
 
     const [dailyTracking, athlete] = await Promise.all([
-      DailyTrackingMealModel.find(filter).lean().sort({ date: -1 }),
-      AthleteModel.findOne({ userId }, { water: 1 }).lean(),
+      DailyTrackingMealModel.find(filter).lean(),
+      AthleteModel.findById({ _id: userId }, { waterQuantity: 1 }).lean(),
     ]);
 
-    if (!dailyTracking.length) {
-      return {
-        data: [],
-        totals: {
-          totalProtein: 0,
-          totalFats: 0,
-          totalCarbs: 0,
-          totalCalories: 0,
-        },
-        water: athlete?.water || 0,
-      };
-    }
+    const last7Days = getLast7Days();
 
-    // 🔹 Collect food names
+    const weeklyData = await DailyTrackingMealModel.find({
+      userId,
+      date: { $in: last7Days },
+    }).lean();
+
     const foodNames = new Set<string>();
-    dailyTracking.forEach(tracking =>
+
+    [...dailyTracking, ...weeklyData].forEach(tracking =>
       tracking.meals.forEach(meal =>
         meal.food.forEach(food => foodNames.add(food.foodNme))
       )
     );
 
-    // 🔹 Fetch food master data
-    const foodDataList = await FoodItemModel.find({
-      name: { $in: [...foodNames] },
-    }).lean();
+    const foodDataList = foodNames.size
+      ? await FoodItemModel.find({ name: { $in: [...foodNames] } }).lean()
+      : [];
 
-    // 🔹 Fast lookup
     const foodMap: Record<string, any> = Object.create(null);
     foodDataList.forEach(food => {
       foodMap[food.name] = food;
@@ -105,7 +118,8 @@ export class DailyTrackingService {
     let totalCarbs = 0;
     let totalCalories = 0;
 
-    // 🔹 Calculate macros
+    //  Calculate macros (current date)
+
     for (const tracking of dailyTracking) {
       for (const meal of tracking.meals) {
         let mealProtein = 0;
@@ -141,12 +155,47 @@ export class DailyTrackingService {
       }
     }
 
+    //  Nutrition stats (current date)
+
     const stats = calculateNutritionStats({
       totalProtein,
       totalFats,
       totalCarbs,
     });
 
+    //  LAST 7 DAYS CALORIES (FIXED & CORRECT)
+
+    const caloriesMap: Record<string, number> = {};
+
+    for (const tracking of weeklyData) {
+      if (!caloriesMap[tracking.date]) {
+        caloriesMap[tracking.date] = 0;
+      }
+
+      for (const meal of tracking.meals) {
+        for (const food of meal.food) {
+          const foodData = foodMap[food.foodNme];
+          if (!foodData) continue;
+
+          const qty = food.quantity ? +food.quantity : 1;
+          const { calories } = calculateFoodMacros(foodData, qty);
+
+          caloriesMap[tracking.date] += calories;
+        }
+      }
+    }
+
+    const caloriesByDate = last7Days.map(date => ({
+      date,
+      day: new Date(date).toLocaleDateString('en-US', {
+        weekday: 'short',
+      }),
+      totalCalories: +(caloriesMap[date] || 0).toFixed(2),
+    }));
+
+    // 🔹 Final response
+
+    console.log(athlete);
     return {
       data: dailyTracking,
       totals: {
@@ -155,7 +204,8 @@ export class DailyTrackingService {
         totalCarbs: +totalCarbs.toFixed(2),
         totalCalories: +totalCalories.toFixed(2),
       },
-      water: athlete?.water || 0,
+      caloriesByDate,
+      water: athlete?.waterQuantity,
       stats,
     };
   }

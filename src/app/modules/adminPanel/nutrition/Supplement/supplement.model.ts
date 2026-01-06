@@ -3,6 +3,8 @@ import { ISupplementItem } from './supplement.interface';
 
 const SupplementItemSchema = new Schema<ISupplementItem>(
   {
+    userId: { type: String },
+    coachId: { type: String },
     name: { type: String, required: true },
     brand: { type: String, required: true },
     dosage: { type: String, required: true },

@@ -13,7 +13,19 @@ export class SupplementItemController {
    */
   addSupplement = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
-      const result = await supplementService.createSupplement(req.body);
+      const userId = req.query.userId;
+      let coachId;
+      if (req.user && req.user.role == 'COACH') {
+        coachId = req.user.id;
+      } else {
+        coachId = '';
+      }
+      const data = {
+        userId,
+        coachId,
+        ...req.body,
+      };
+      const result = await supplementService.createSupplement(data);
       sendResponse(res, {
         success: true,
         statusCode: StatusCodes.CREATED,
@@ -30,7 +42,17 @@ export class SupplementItemController {
   getAllSupplements = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
       const { search, page, limit } = req.query;
+      let userId;
+      let coachId;
+      if (req.user && req.user.role == 'ATHLETE') {
+        userId = req.user.id;
+      } else if (req.user && req.user.role == 'COACH') {
+        coachId = req.user.id;
+      }
+
       const result = await supplementService.getAllSupplements(
+        userId,
+        coachId,
         search as string,
         Number(page) || 1,
         Number(limit) || 10

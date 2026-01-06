@@ -7,10 +7,15 @@ const router = express.Router();
 const supplementController = new SupplementItemController();
 
 // Public routes
-router.get('/', supplementController.getAllSupplements);
+router.get(
+  '/',
+  auth(USER_ROLES.ATHLETE, USER_ROLES.COACH, USER_ROLES.SUPER_ADMIN),
+  supplementController.getAllSupplements
+);
+
 router.get('/:id', supplementController.getSupplementById);
 
-// Protected routes (Admin or Coach)
+// Protected routes (Admin or Coach), here pass userID by query params userId.
 router.post(
   '/',
   auth(USER_ROLES.SUPER_ADMIN, USER_ROLES.COACH),

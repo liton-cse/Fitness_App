@@ -54,6 +54,22 @@ export class TrainingPlanController {
     }
   );
 
+  getTrainingPlansById = catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const id = req.params.id;
+      const userId = req.user.id;
+
+      const result = await trainingPlanService.getTrainingPlansById(id, userId);
+
+      sendResponse(res, {
+        success: true,
+        statusCode: StatusCodes.OK,
+        message: 'Training plans retrieved by id successfully',
+        data: result,
+      });
+    }
+  );
+
   /**
    * Update training plan
    * PATCH /api/v1/training-plans/:id

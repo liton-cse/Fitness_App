@@ -11,7 +11,11 @@ app.use(Morgan.successHandler);
 app.use(Morgan.errorHandler);
 
 //body parser
-app.use(cors());
+app.use(
+  cors({
+    origin: ['http://10.10.7.100:3000', 'http://localhost:3000'],
+  })
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

@@ -8,7 +8,6 @@ import { ExerciseRouter } from '../app/modules/adminPanel/exercise/exercise.rout
 import { AthleteAuthRoutes } from '../app/modules/adminPanel/athlete/athleteAuthRoute';
 import { FoodItemRoutes } from '../app/modules/adminPanel/nutrition/Food/food.routes';
 import { SupplementItemRoute } from '../app/modules/adminPanel/nutrition/Supplement/supplement.routes';
-import { PEDInfoRoutes } from '../app/modules/adminPanel/nutrition/ped/ped.routes';
 import { ShowManagementRoutes } from '../app/modules/coachPanel/showManagement/management.route';
 import { DailyTrackingRoutes } from '../app/modules/appAthlete/dailyTracking/daily.tracking.routes';
 import { CheckInRoter } from '../app/modules/appAthlete/checkIn/checkin.routes';
@@ -23,6 +22,8 @@ import { ProfileRouter } from '../app/modules/appAthlete/profile/profile.routes'
 import { PEDDatabaseRouter } from '../app/modules/coachPanel/ped/ped.route';
 import { DashboardRouter } from '../app/modules/adminPanel/dashboard/dashboard.route';
 import { WeeklyCheckInRouter } from '../app/modules/adminPanel/weeklyCheckIn/weekly.route';
+import { PEDDatabaseInfoRouter } from '../app/modules/adminPanel/nutrition/pedDatabase/ped.database.route';
+import { CoachExerciseRouter } from '../app/modules/coachPanel/coachExercise/exercise.route';
 
 const router = express.Router();
 
@@ -60,6 +61,10 @@ const apiRoutes = [
     route: ExerciseRouter,
   },
   {
+    path: '/exercise/coach',
+    route: CoachExerciseRouter,
+  },
+  {
     path: '/food/nutrition',
     route: FoodItemRoutes,
   },
@@ -69,7 +74,7 @@ const apiRoutes = [
   },
   {
     path: '/ped/nutrition',
-    route: PEDInfoRoutes,
+    route: PEDDatabaseInfoRouter,
   },
   {
     path: '/show/management',

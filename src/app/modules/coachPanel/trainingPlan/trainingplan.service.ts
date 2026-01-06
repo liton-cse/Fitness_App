@@ -31,6 +31,11 @@ export class TrainingPlanService {
     return trainingPlans;
   }
 
+  async getTrainingPlansById(id: string, userId: string) {
+    const item = await TrainingPlanModel.findById({ _id: id, userId });
+    return item;
+  }
+
   /**
    * Update training plan by ID
    */

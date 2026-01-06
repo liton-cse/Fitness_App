@@ -13,17 +13,41 @@ export class SupplementItemService {
   /**
    * Get all supplements with pagination and optional search by name
    */
-  async getAllSupplements(search?: string, page = 1, limit = 10) {
+  async getAllSupplements(
+    userId?: string,
+    coachId?: string,
+    search?: string,
+    page = 1,
+    limit = 10
+  ) {
     const query: any = {};
+
+    // ✅ filter by userId
+    if (userId) {
+      query.userId = userId;
+    }
+    if (coachId) {
+      query.coachId = coachId;
+    }
+
+    // ✅ search by supplement name
     if (search) {
       query.name = { $regex: search, $options: 'i' };
     }
 
     const skip = (page - 1) * limit;
-    const total = await SupplementItemModel.countDocuments(query);
-    const items = await SupplementItemModel.find(query).skip(skip).limit(limit);
 
-    return { total, page, limit, items };
+    const [total, items] = await Promise.all([
+      SupplementItemModel.countDocuments(query),
+      SupplementItemModel.find(query).skip(skip).limit(limit).lean(),
+    ]);
+
+    return {
+      total,
+      page,
+      limit,
+      items,
+    };
   }
 
   /**

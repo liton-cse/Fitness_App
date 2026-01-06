@@ -36,14 +36,10 @@ export class PEDDatabaseService {
     if (isSundayEvening()) {
       const nextWeek = getNextWeekLabel(week);
 
-      const exists = await PEDDatabaseModel.findOne({
-        week: nextWeek,
-      });
+      const exists = await PEDDatabaseModel.findOne({ week: nextWeek });
 
       if (!exists) {
-        const prevWeekDoc = await PEDDatabaseModel.findOne({
-          week,
-        });
+        const prevWeekDoc = await PEDDatabaseModel.findOne({ week });
 
         if (prevWeekDoc) {
           await PEDDatabaseModel.create({
@@ -56,7 +52,7 @@ export class PEDDatabaseService {
       week = nextWeek;
     }
 
-    // ✅ Get or create current week document
+    // ✅ Get or create week document
     let weekDoc = await PEDDatabaseModel.findOne({ week });
 
     if (!weekDoc) {
@@ -81,14 +77,24 @@ export class PEDDatabaseService {
       sun: '',
     }));
 
-    // ✅ Category check
+    // ✅ Find category in the SAME week
     const existingCategory = weekDoc.categories.find(
       (cat: ICategory) => cat.name === category
     );
 
     if (existingCategory) {
-      existingCategory.subCategory.push(...formattedSubCategories);
+      // ✅ Add ONLY new subcategories (avoid duplicates)
+      const existingNames = new Set(
+        existingCategory.subCategory.map(sub => sub.name)
+      );
+
+      const newSubCategories = formattedSubCategories.filter(
+        sub => !existingNames.has(sub.name)
+      );
+
+      existingCategory.subCategory.push(...newSubCategories);
     } else {
+      // ✅ New category → just add to the same week
       weekDoc.categories.push({
         name: category,
         subCategory: formattedSubCategories,
