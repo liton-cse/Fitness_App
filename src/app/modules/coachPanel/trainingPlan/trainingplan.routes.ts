@@ -18,7 +18,7 @@ router.post('/:userId', auth(USER_ROLES.COACH), controller.addTrainingPlan);
 router.get('/:userId', controller.getTrainingPlansByName);
 router.get(
   '/id/:id',
-  auth(USER_ROLES.ATHLETE),
+  auth(USER_ROLES.ATHLETE, USER_ROLES.COACH),
   controller.getTrainingPlansById
 );
 

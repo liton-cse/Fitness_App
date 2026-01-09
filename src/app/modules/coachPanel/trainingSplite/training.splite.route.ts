@@ -20,7 +20,7 @@ router.post(
  */
 router.get(
   '/:userId',
-  auth(USER_ROLES.COACH),
+  auth(USER_ROLES.COACH, USER_ROLES.ATHLETE),
   controller.getTrainingPlanSplites
 );
 

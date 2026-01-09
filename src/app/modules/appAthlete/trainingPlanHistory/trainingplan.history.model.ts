@@ -21,8 +21,10 @@ const TimeSchema = new Schema<ITime>(
 const PushDataSchema = new Schema<IPushData>(
   {
     weight: { type: Number, required: true },
-    reps: { type: Number, required: true },
-    rir: { type: Number, required: true },
+    repRange: { type: String, required: true },
+    rir: { type: String, required: true },
+    set: { type: Number, required: true },
+    exerciseName: { type: String, required: true },
   },
   { _id: false }
 );

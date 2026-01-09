@@ -52,26 +52,10 @@ export class CheckInService {
    * @param userId - User ID
    * @returns array of CheckIn documents
    */
-  async getCheckInsByUser(userId: string, page: number, limit: number) {
-    const skip = (page - 1) * limit;
+  async getCheckInsByUser(userId: string) {
+    const data = await CheckInModel.find({ userId }).sort({ createdAt: -1 });
 
-    const [data, total] = await Promise.all([
-      CheckInModel.find({ userId })
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(limit),
-      CheckInModel.countDocuments({ userId }),
-    ]);
-
-    return {
-      meta: {
-        page,
-        limit,
-        total,
-        totalPages: Math.ceil(total / limit),
-      },
-      data,
-    };
+    return data;
   }
 
   /**

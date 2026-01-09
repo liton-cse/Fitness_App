@@ -10,7 +10,7 @@ const controller = new CheckInController();
 // Create a new Check-in
 router.post(
   '/',
-  auth(USER_ROLES.ATHLETE),
+  auth(USER_ROLES.ATHLETE, USER_ROLES.COACH),
   fileUploadHandler(),
   controller.createCheckIn
 );
@@ -18,7 +18,7 @@ router.post(
 // Get all Check-ins for the logged-in user
 router.get(
   '/',
-  auth(USER_ROLES.ATHLETE, USER_ROLES.SUPER_ADMIN),
+  auth(USER_ROLES.ATHLETE, USER_ROLES.SUPER_ADMIN, USER_ROLES.COACH),
   controller.getAllCheckIns
 );
 router.get(
