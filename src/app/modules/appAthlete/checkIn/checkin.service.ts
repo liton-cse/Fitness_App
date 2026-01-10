@@ -75,6 +75,32 @@ export class CheckInService {
   }
 
   /**
+   * Get all Check-in records for a user
+   * @param userId - User ID
+   * @returns array of CheckIn documents
+   */
+  async getLatestCheckInsByUser(
+    coachId: string,
+    userId: string,
+    page: number,
+    limit: number
+  ) {
+    const skip = (page - 1) * limit;
+
+    const [data, total] = await Promise.all([
+      CheckInModel.find({ userId, coachId })
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit),
+      CheckInModel.countDocuments({ userId }),
+    ]);
+
+    return {
+      data,
+    };
+  }
+
+  /**
    * Gets athlete check-in day and calculates next check-in date
    */
   async getNextCheckInInfo(userId: string) {

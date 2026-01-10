@@ -14,6 +14,7 @@ const foodSchema = new Schema<IFood>(
 const athleteNutritionPlanSchema = new Schema<IAthleteNutritionPlan>(
   {
     athleteId: { type: String, required: true },
+    coachId: { type: String, required: true },
     mealName: { type: String, required: true },
     food: { type: [foodSchema], required: true },
     time: { type: String, required: true },

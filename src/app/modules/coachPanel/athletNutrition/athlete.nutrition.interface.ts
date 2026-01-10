@@ -5,6 +5,7 @@ export interface IFood {
 
 export interface IAthleteNutritionPlan {
   athleteId: string;
+  coachId: string;
   mealName: string;
   food: IFood[];
   time: string;

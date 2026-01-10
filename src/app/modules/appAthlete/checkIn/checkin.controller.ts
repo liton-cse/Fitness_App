@@ -26,7 +26,7 @@ export class CheckInController {
         userId: req.user.id,
         coachId: athlete?.coachId,
         image: images,
-        video: videos,
+        media: videos,
       };
       const result = await checkInService.createCheckIn(
         payload,
@@ -53,6 +53,32 @@ export class CheckInController {
 
       const result = await checkInService.getCheckInsByUser(
         req.user.id,
+        page,
+        limit
+      );
+
+      sendResponse(res, {
+        success: true,
+        statusCode: StatusCodes.OK,
+        message: 'Fetched all check-ins successfully',
+        data: result,
+      });
+    }
+  );
+
+  /**
+   * Get all Check-ins for logged-in user
+   * GET /api/v1/checkin
+   */
+  getLatestCheckIns = catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const page = Number(req.query.page) || 1;
+      const limit = Number(req.query.limit) || 1;
+      const coachId = req.user.id;
+      const userId = req.params.userId;
+      const result = await checkInService.getLatestCheckInsByUser(
+        coachId,
+        userId,
         page,
         limit
       );

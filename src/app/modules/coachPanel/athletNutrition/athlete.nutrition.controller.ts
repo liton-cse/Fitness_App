@@ -14,9 +14,11 @@ export class AthleteNutritionPlanController {
   addNutritionPlan = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
       const athleteId = req.params.id;
+      const coachId = req.user.id;
       const payload = {
         ...req.body,
         athleteId,
+        coachId,
       };
       console.log(payload);
       const result = await nutritionService.createNutritionPlan(payload);

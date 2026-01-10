@@ -29,6 +29,12 @@ router.get(
 
 router.get('/old-data', auth(USER_ROLES.ATHLETE), controller.getOldCheckInData);
 
+router.get(
+  '/latest/:userId',
+  auth(USER_ROLES.COACH, USER_ROLES.ATHLETE),
+  controller.getLatestCheckIns
+);
+
 // Get a single Check-in by ID
 router.get('/:id', controller.getCheckInById);
 
