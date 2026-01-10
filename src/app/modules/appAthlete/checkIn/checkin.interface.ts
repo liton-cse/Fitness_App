@@ -34,7 +34,8 @@ export interface ICheckInInfo {
   nutrition: Nutrition;
   training: Training;
   trainingFeedback: string;
-  dailyNote: string;
+  athleteNote: string;
+  coachNote?: string;
   checkinCompleted: string;
   image: string[];
   media: string[];

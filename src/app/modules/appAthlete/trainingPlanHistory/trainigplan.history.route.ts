@@ -11,21 +11,25 @@ const controller = new TrainingPushDayHistoryController();
  */
 router.post(
   '/',
-  auth(USER_ROLES.ATHLETE),
+  auth(USER_ROLES.ATHLETE, USER_ROLES.COACH),
   controller.addTrainingPushDayHistory
 );
 
 /**
  * Get Training Push Day History
  */
-router.get('/', auth(USER_ROLES.ATHLETE), controller.getTrainingPushDayHistory);
+router.get(
+  '/',
+  auth(USER_ROLES.ATHLETE, USER_ROLES.COACH),
+  controller.getTrainingPushDayHistory
+);
 
 /**
  * Update Training Push Day History
  */
 router.patch(
   '/:id',
-  auth(USER_ROLES.ATHLETE),
+  auth(USER_ROLES.ATHLETE, USER_ROLES.COACH),
   controller.updateTrainingPushDayHistory
 );
 
@@ -34,7 +38,7 @@ router.patch(
  */
 router.delete(
   '/:id',
-  auth(USER_ROLES.ATHLETE),
+  auth(USER_ROLES.ATHLETE, USER_ROLES.COACH),
   controller.deleteTrainingPushDayHistory
 );
 

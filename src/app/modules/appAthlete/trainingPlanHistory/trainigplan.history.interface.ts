@@ -5,8 +5,10 @@ export interface ITime {
 }
 export interface IPushData {
   weight: number;
-  reps: number;
-  rir: number;
+  repRange: string;
+  rir: string;
+  exerciseName: string;
+  set: number;
 }
 
 export interface ITrainingPushDayHistory {

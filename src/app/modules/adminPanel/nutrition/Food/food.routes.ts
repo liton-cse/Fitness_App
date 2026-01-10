@@ -13,7 +13,7 @@ router.get('/:id', foodController.getFoodItemById);
 // Protected routes (Admin or Coach)
 router.post(
   '/',
-  auth(USER_ROLES.SUPER_ADMIN, USER_ROLES.COACH),
+  auth(USER_ROLES.SUPER_ADMIN, USER_ROLES.COACH, USER_ROLES.ATHLETE),
   foodController.addFoodItem
 );
 router.put(

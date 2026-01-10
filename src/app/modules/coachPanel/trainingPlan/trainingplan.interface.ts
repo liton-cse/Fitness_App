@@ -4,8 +4,9 @@ export interface IExercise {
   _id: string;
   exerciseName: string;
   sets: string;
-  rep: string;
-  range: string;
+  repRange: string;
+  rir: string;
+  excerciseNote: string;
 }
 export interface ITrainingPlan extends Document {
   userId: string;

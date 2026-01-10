@@ -12,11 +12,15 @@ const ExerciseSchema = new Schema<IExercise>({
     type: String,
     required: true,
   },
-  rep: {
+  repRange: {
     type: String,
     required: true,
   },
-  range: {
+  rir: {
+    type: String,
+    required: true,
+  },
+  excerciseNote: {
     type: String,
     required: true,
   },

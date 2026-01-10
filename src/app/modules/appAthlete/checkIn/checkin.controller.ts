@@ -51,11 +51,7 @@ export class CheckInController {
       const page = Number(req.query.page) || 1;
       const limit = Number(req.query.limit) || 1;
 
-      const result = await checkInService.getCheckInsByUser(
-        req.user.id,
-        page,
-        limit
-      );
+      const result = await checkInService.getCheckInsByUser(req.user.id);
 
       sendResponse(res, {
         success: true,

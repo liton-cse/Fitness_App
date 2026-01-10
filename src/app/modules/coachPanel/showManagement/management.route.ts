@@ -7,10 +7,22 @@ const router = express.Router();
 const showController = new ShowManagementController();
 
 // CRUD routes
-router.post('/', auth(USER_ROLES.SUPER_ADMIN), showController.addShow);
+router.post(
+  '/',
+  auth(USER_ROLES.SUPER_ADMIN, USER_ROLES.COACH),
+  showController.addShow
+);
 router.get('/', showController.getAllShows);
 router.get('/:id', showController.getShowById);
-router.put('/:id', auth(USER_ROLES.SUPER_ADMIN), showController.updateShow);
-router.delete('/:id', auth(USER_ROLES.SUPER_ADMIN), showController.deleteShow);
+router.put(
+  '/:id',
+  auth(USER_ROLES.SUPER_ADMIN, USER_ROLES.COACH),
+  showController.updateShow
+);
+router.delete(
+  '/:id',
+  auth(USER_ROLES.SUPER_ADMIN, USER_ROLES.COACH),
+  showController.deleteShow
+);
 
 export const ShowManagementRoutes = router;
