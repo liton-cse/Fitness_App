@@ -1,7 +1,7 @@
 import express from 'express';
 import { PEDDatabaseController } from './ped.database.controller';
-import auth from '../../../../middlewares/auth';
-import { USER_ROLES } from '../../../../../enums/user';
+import auth from '../../../middlewares/auth';
+import { USER_ROLES } from '../../../../enums/user';
 
 const router = express.Router();
 const controller = new PEDDatabaseController();

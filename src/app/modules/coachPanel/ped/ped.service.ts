@@ -18,7 +18,7 @@ const getCurrentWeekLabel = async () => {
 
 const getNextWeekLabel = (week: string) => {
   const num = Number(week.split(' ')[1]);
-  return `Week ${num + 1}`;
+  return `week ${num + 1}`;
 };
 
 /* ---------- Service ---------- */
@@ -111,5 +111,67 @@ export class PEDDatabaseService {
 
   async getAllPED() {
     return PEDDatabaseModel.find().sort({ createdAt: 1 }).lean();
+  }
+
+  /**
+   * Get PED data for athlete
+   * If athlete-specific data doesn't exist,
+   * create it from template
+   */
+  async getOrCreateForAthlete(
+    athleteId: string,
+    coachId: string,
+    week: string
+  ) {
+    // 1️⃣ Check athlete-specific record
+    let record = await PEDDatabaseModel.findOne({
+      athleteId,
+      week,
+    });
+
+    if (record) return record;
+
+    // 2️⃣ Get template (athleteId = null)
+    const template = await PEDDatabaseModel.findOne({
+      week,
+    }).lean();
+
+    if (!template) {
+      throw new Error('PED template not found for this week');
+    }
+
+    // 3️⃣ Create athlete-specific copy
+    record = await PEDDatabaseModel.create({
+      athleteId,
+      coachId,
+      week,
+      categories: structuredClone(template.categories),
+    });
+
+    return record;
+  }
+
+  /**
+   * Coach updates athlete PED data
+   */
+  async updateForAthlete(
+    athleteId: string,
+    coachId: string,
+    week: string,
+    categories: any
+  ) {
+    const record = await PEDDatabaseModel.findOne({
+      week,
+    });
+
+    if (!record) {
+      throw new Error('Athlete PED record not found');
+    }
+    record.athleteId = athleteId;
+    record.coachId = coachId;
+    record.categories = categories;
+    await record.save();
+
+    return record;
   }
 }

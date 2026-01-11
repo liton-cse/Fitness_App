@@ -13,7 +13,7 @@ export class SupplementItemController {
    */
   addSupplement = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
-      const userId = req.query.userId;
+      const userId = req.user.id;
       let coachId;
       if (req.user && req.user.role == 'COACH') {
         coachId = req.user.id;
@@ -23,6 +23,28 @@ export class SupplementItemController {
       const data = {
         userId,
         coachId,
+        ...req.body,
+      };
+      const result = await supplementService.createSupplement(data);
+      sendResponse(res, {
+        success: true,
+        statusCode: StatusCodes.CREATED,
+        message: 'Supplement created successfully',
+        data: result,
+      });
+    }
+  );
+
+  addSupplementByAdmin = catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      let adminId;
+      if (req.user && req.user.role == 'SUPER_ADMIN') {
+        adminId = req.user.id;
+      } else {
+        adminId = '';
+      }
+      const data = {
+        adminId,
         ...req.body,
       };
       const result = await supplementService.createSupplement(data);
@@ -53,6 +75,25 @@ export class SupplementItemController {
       const result = await supplementService.getAllSupplements(
         userId,
         coachId,
+        search as string,
+        Number(page) || 1,
+        Number(limit) || 10
+      );
+
+      sendResponse(res, {
+        success: true,
+        statusCode: StatusCodes.OK,
+        message: 'Supplements retrieved successfully',
+        data: result,
+      });
+    }
+  );
+
+  getAllSupplementsByAdmin = catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const { search, page, limit } = req.query;
+
+      const result = await supplementService.getAllSupplementsByAdmin(
         search as string,
         Number(page) || 1,
         Number(limit) || 10

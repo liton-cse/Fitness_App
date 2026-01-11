@@ -1,6 +1,7 @@
 export interface ISupplementItem {
   userId: string;
   coachId: string;
+  adminId: string;
   name: string;
   brand: string;
   dosage: string;

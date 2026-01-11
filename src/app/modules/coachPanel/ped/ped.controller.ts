@@ -71,4 +71,49 @@ export class PEDDatabaseController {
       });
     }
   );
+
+  /**
+   * Coach opens athlete PED page
+   */
+  getAthletePED = async (req: Request, res: Response) => {
+    const { athleteId } = req.params;
+    const { week } = req.query;
+    const coachId = req.user.id;
+
+    const data = await pedService.getOrCreateForAthlete(
+      athleteId,
+      coachId,
+      String(week)
+    );
+
+    sendResponse(res, {
+      success: true,
+      statusCode: StatusCodes.OK,
+      message: 'Weekly  Athlete PED data fetched successfully',
+      data: data,
+    });
+  };
+
+  /**
+   * Coach updates athlete PED
+   */
+  updateAthletePED = async (req: Request, res: Response) => {
+    const { athleteId } = req.params;
+    const { week } = req.query;
+    const coachId = req.user.id;
+    const { categories } = req.body;
+    const result = await pedService.updateForAthlete(
+      athleteId,
+      coachId,
+      String(week),
+      categories
+    );
+
+    sendResponse(res, {
+      success: true,
+      statusCode: StatusCodes.OK,
+      message: 'Weekly PED data fetched successfully',
+      data: result,
+    });
+  };
 }

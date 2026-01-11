@@ -22,7 +22,7 @@ import { ProfileRouter } from '../app/modules/appAthlete/profile/profile.routes'
 import { PEDDatabaseRouter } from '../app/modules/coachPanel/ped/ped.route';
 import { DashboardRouter } from '../app/modules/adminPanel/dashboard/dashboard.route';
 import { WeeklyCheckInRouter } from '../app/modules/adminPanel/weeklyCheckIn/weekly.route';
-import { PEDDatabaseInfoRouter } from '../app/modules/adminPanel/nutrition/pedDatabase/ped.database.route';
+import { PEDDatabaseInfoRouter } from '../app/modules/coachPanel/pedDatabase/ped.database.route';
 import { CoachExerciseRouter } from '../app/modules/coachPanel/coachExercise/exercise.route';
 
 const router = express.Router();

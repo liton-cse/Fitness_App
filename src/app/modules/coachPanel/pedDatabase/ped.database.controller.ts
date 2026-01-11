@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { PEDDatabaseService } from './ped.database.service';
-import catchAsync from '../../../../../shared/catchAsync';
-import sendResponse from '../../../../../shared/sendResponse';
+import catchAsync from '../../../../shared/catchAsync';
+import sendResponse from '../../../../shared/sendResponse';
 
 const pedService = new PEDDatabaseService();
 

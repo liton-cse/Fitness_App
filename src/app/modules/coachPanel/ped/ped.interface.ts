@@ -21,7 +21,7 @@ export interface ICategory {
 
 export interface IPEDDatabase extends Document {
   coachId?: string;
-  athleteId?: string;
+  athleteId?: string | null;
   week: string;
   categories: ICategory[];
   createdAt: Date;

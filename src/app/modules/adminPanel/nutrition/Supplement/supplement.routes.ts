@@ -8,18 +8,30 @@ const supplementController = new SupplementItemController();
 
 // Public routes
 router.get(
+  '/:userId',
+  auth(USER_ROLES.ATHLETE, USER_ROLES.COACH),
+  supplementController.getAllSupplements
+);
+
+router.get(
   '/',
   auth(USER_ROLES.ATHLETE, USER_ROLES.COACH, USER_ROLES.SUPER_ADMIN),
-  supplementController.getAllSupplements
+  supplementController.getAllSupplementsByAdmin
 );
 
 router.get('/:id', supplementController.getSupplementById);
 
 // Protected routes (Admin or Coach), here pass userID by query params userId.
 router.post(
-  '/',
-  auth(USER_ROLES.SUPER_ADMIN, USER_ROLES.COACH),
+  '/:userId',
+  auth(USER_ROLES.COACH),
   supplementController.addSupplement
+);
+
+router.post(
+  '/',
+  auth(USER_ROLES.SUPER_ADMIN),
+  supplementController.addSupplementByAdmin
 );
 router.put(
   '/:id',

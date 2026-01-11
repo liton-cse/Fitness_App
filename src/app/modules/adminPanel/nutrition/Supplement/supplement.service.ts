@@ -50,6 +50,32 @@ export class SupplementItemService {
     };
   }
 
+  async getAllSupplementsByAdmin(
+    search?: string,
+    page: number = 1,
+    limit: number = 10
+  ) {
+    const query: any = {};
+    // ✅ search by supplement name
+    if (search) {
+      query.name = { $regex: search, $options: 'i' };
+    }
+
+    const skip = (page - 1) * limit;
+
+    const [total, items] = await Promise.all([
+      SupplementItemModel.countDocuments(query),
+      SupplementItemModel.find(query).skip(skip).limit(limit).lean(),
+    ]);
+
+    return {
+      total,
+      page,
+      limit,
+      items,
+    };
+  }
+
   /**
    * Get a supplement by ID
    */
