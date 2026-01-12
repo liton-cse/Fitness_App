@@ -5,7 +5,6 @@ import { ICategory, IPEDDatabase, ISubCategory } from './ped.interface';
 
 const SubCategorySchema = new Schema<ISubCategory>(
   {
-    id: String,
     name: String,
     dosage: { type: String, default: '' },
     frequency: { type: String, default: '' },
@@ -32,13 +31,14 @@ const PEDDatabaseSchema = new Schema<IPEDDatabase>(
   {
     athleteId: { type: String, default: '' },
     coachId: { type: String, default: '' },
-    week: { type: String, required: true },
+    week: { type: String, default: '' },
     categories: { type: [CategorySchema], default: [] },
   },
   { timestamps: true }
 );
 
-PEDDatabaseSchema.index({ coachId: 1, week: 1 }, { unique: true });
+
+
 
 export const PEDDatabaseModel: Model<IPEDDatabase> =
   mongoose.models.PEDDatabase ||

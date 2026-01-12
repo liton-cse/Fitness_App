@@ -14,7 +14,7 @@ router.post(
   auth(USER_ROLES.COACH, USER_ROLES.SUPER_ADMIN),
   controller.createWeeklyPEDDatabase
 );
-router.get('/', controller.getPEDByAthlete);
-router.get('/', controller.getPEDByWeek);
+// router.get('/', controller.getPEDByAthlete);
+// router.get('/', controller.getPEDByWeek);
 
 export const PEDDatabaseInfoRouter = router;

@@ -21,7 +21,7 @@ export class PEDDatabaseController {
       // assuming coachId is attached by auth middleware
       const { category, subCategory } = req.body;
 
-      const result = await pedService.createWeeklyPEDDatabase({
+      const result = await pedService.createOrUpdatePEDTemplate({
         category,
         subCategory,
       });
@@ -42,6 +42,22 @@ export class PEDDatabaseController {
   getPEDByAthlete = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
       const result = await pedService.getAllPED();
+
+      sendResponse(res, {
+        success: true,
+        statusCode: StatusCodes.OK,
+        message: 'PED database fetched successfully',
+        data: result,
+      });
+    }
+  );
+
+  getPEDForAthleteInApp = catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const athleteId = req.user.id;
+      const week =
+        typeof req.query.week === 'string' ? req.query.week : undefined;
+      const result = await pedService.getAllPEDForApp(athleteId, week);
 
       sendResponse(res, {
         success: true,
@@ -77,14 +93,9 @@ export class PEDDatabaseController {
    */
   getAthletePED = async (req: Request, res: Response) => {
     const { athleteId } = req.params;
-    const { week } = req.query;
     const coachId = req.user.id;
 
-    const data = await pedService.getOrCreateForAthlete(
-      athleteId,
-      coachId,
-      String(week)
-    );
+    const data = await pedService.getOrCreateForAthlete(athleteId, coachId);
 
     sendResponse(res, {
       success: true,
