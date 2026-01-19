@@ -27,8 +27,8 @@ export const sendWeeklyNotifications = async (): Promise<void> => {
       if (!athlete.fcmToken) continue;
       await sendPushNotification(athlete.fcmToken, {
         title: 'Weekly Check Day Reminder',
-        body: `Today is your check day (${today}). Don't forget to complete your activity!`,
-      });
+        description: `Today is your check day (${today}). Don't forget to complete your activity!`,
+      }, athlete._id.toString());
 
       await markNotificationSent(athlete._id.toString());
     }

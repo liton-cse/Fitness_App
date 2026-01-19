@@ -4,6 +4,7 @@ export interface ITime {
   minite: string;
 }
 export interface IPushData {
+  reps: number;
   weight: number;
   repRange: string;
   rir: string;

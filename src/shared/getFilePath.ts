@@ -41,7 +41,7 @@ export const normalizeAthleteInput = (
     trainingDaySteps: Number(input.trainingDaySteps),
     restDaySteps: Number(input.restDaySteps),
     // Convert _id / coachId to ObjectId if needed
-    coachId: input.coachId ? new Types.ObjectId(input.coachId) : undefined,
+    coachId: input.coachId ? input.coachId : undefined,
     lastCheckIn: input.lastCheckIn ? new Date(input.lastCheckIn) : undefined,
   };
 };
