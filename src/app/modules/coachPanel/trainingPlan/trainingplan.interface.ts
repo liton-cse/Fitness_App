@@ -1,11 +1,16 @@
 import { Types } from 'mongoose';
 
+
+export interface ITrainingPlanSets {
+  sets: string;
+  repRange: string;
+  rir: string; 
+}
+
 export interface IExercise {
   _id: string;
   exerciseName: string;
-  sets: string;
-  repRange: string;
-  rir: string;
+  exerciseSets: ITrainingPlanSets[];
   excerciseNote: string;
 }
 export interface ITrainingPlan extends Document {

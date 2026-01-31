@@ -93,11 +93,51 @@ export class SupplementItemService {
     });
   }
 
+
+    /**
+   * Update a supplement by ID
+   */
+async updateSupplementByCoach(
+  id: string,
+  payload: Partial<ISupplementItem>,
+  coachId: string,
+  userId: string
+) {
+  const updated = await SupplementItemModel.findOneAndUpdate(
+    {
+      _id: id,
+      coachId: coachId,
+      userId: userId,
+    },
+    payload,
+    {
+      new: true,
+      runValidators: true,
+    }
+  );
+
+  if (!updated) {
+    throw new Error("Supplement not found or not authorized");
+  }
+
+  return updated;
+}
+
+
   /**
    * Delete a supplement by ID
    */
   async deleteSupplement(id: string) {
     const result = await SupplementItemModel.findByIdAndDelete(id);
+    return result;
+  }
+
+    async deleteSupplementByCoach(id: string, coachId: string, userId: string) {
+    const result = await SupplementItemModel.findOneAndDelete({
+      _id: id,
+      coachId: coachId,
+      userId: userId,
+    });
     return result;
   }
 }

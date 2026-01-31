@@ -145,6 +145,25 @@ export class SupplementItemController {
     }
   );
 
+    updateSupplementByCoach = catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const coachId=req.user.id;
+      const userId= req.params.user
+      
+      const result = await supplementService.updateSupplementByCoach(
+        req.params.id,
+        req.body,coachId,userId
+      );
+
+      sendResponse(res, {
+        success: true,
+        statusCode: StatusCodes.OK,
+        message: 'Supplement updated successfully',
+        data: result,
+      });
+    }
+  );
+
   /**
    * Delete supplement by ID
    * DELETE /api/v1/supplements/:id
@@ -161,4 +180,22 @@ export class SupplementItemController {
       });
     }
   );
+
+
+    deleteSupplementByCoach = catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const coachId=req.user.id;
+      const userId= req.params.userId;
+      const result = await supplementService.deleteSupplementByCoach(req.params.id, coachId, userId);
+
+      sendResponse(res, {
+        success: true,
+        statusCode: StatusCodes.OK,
+        message: 'Supplement deleted successfully',
+        data: result,
+      });
+    }
+  );
+
+  
 }

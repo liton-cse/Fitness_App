@@ -38,6 +38,17 @@ router.put(
   auth(USER_ROLES.SUPER_ADMIN, USER_ROLES.COACH),
   supplementController.updateSupplement
 );
+router.put(
+  '/coach/:userId/:id',
+  auth(USER_ROLES.COACH),
+  supplementController.updateSupplementByCoach
+);
+
+router.delete(
+  '/coach/:userId/:id',
+  auth(USER_ROLES.COACH),
+  supplementController.deleteSupplementByCoach
+);
 router.delete(
   '/:id',
   auth(USER_ROLES.SUPER_ADMIN, USER_ROLES.COACH),

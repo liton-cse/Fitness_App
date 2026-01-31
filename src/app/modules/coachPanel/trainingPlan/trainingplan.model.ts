@@ -1,52 +1,72 @@
-import mongoose, { Schema, Types } from 'mongoose';
-import { IExercise, ITrainingPlan } from './trainingplan.interface';
+import { model, Schema } from "mongoose";
+import { IExercise, ITrainingPlan, ITrainingPlanSets } from "./trainingplan.interface";
 
-/* Exercise Sub Schema */
-const ExerciseSchema = new Schema<IExercise>({
-  exerciseName: {
-    type: String,
-    required: true,
-    trim: true,
+const TrainingPlanSetsSchema = new Schema<ITrainingPlanSets>(
+  {
+    sets: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    repRange: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    rir: {
+      type: String,
+      required: true,
+      trim: true,
+    },
   },
-  sets: {
-    type: String,
-    required: true,
-  },
-  repRange: {
-    type: String,
-    required: true,
-  },
-  rir: {
-    type: String,
-    required: true,
-  },
-  excerciseNote: {
-    type: String,
-    required: true,
-  },
-});
+  { _id: false } // No separate _id for each set
+);
 
-/* Training Plan Schema */
+/* ================================
+   🔹 Sub Schema: Exercise
+================================ */
+
+const ExerciseSchema = new Schema<IExercise>(
+  {
+    exerciseName: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    excerciseNote: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+    exerciseSets: {
+      type: [TrainingPlanSetsSchema],
+      required: true,
+    },
+  },
+  {
+    _id: true, // Each exercise will have its own Mongo _id
+  }
+);
+
+/* ================================
+   🔹 Main Training Plan Schema
+================================ */
+
 const TrainingPlanSchema = new Schema<ITrainingPlan>(
   {
     userId: {
       type: String,
       required: true,
-      index: true,
     },
     coachId: {
-      type: Types.ObjectId,
-      ref: 'Coach',
+      type: Schema.Types.ObjectId,
+      ref: "Coach",
       required: true,
     },
     traingPlanName: {
       type: String,
       required: true,
       trim: true,
-    },
-    exercise: {
-      type: [ExerciseSchema],
-      required: true,
     },
     dificulty: {
       type: String,
@@ -55,15 +75,24 @@ const TrainingPlanSchema = new Schema<ITrainingPlan>(
     },
     comment: {
       type: String,
-      default: '',
+      default: "",
+      trim: true,
+    },
+    exercise: {
+      type: [ExerciseSchema],
+      required: true,
     },
   },
   {
-    timestamps: true,
+    timestamps: true, // adds createdAt & updatedAt
   }
 );
 
-export const TrainingPlanModel = mongoose.model<ITrainingPlan>(
-  'TrainingPlanForAthlete',
+/* ================================
+   🔹 Model Export
+================================ */
+
+export const TrainingPlanModel = model<ITrainingPlan>(
+  "TrainingPlanForAthlete",
   TrainingPlanSchema
 );
