@@ -4,6 +4,7 @@ import catchAsync from '../../../../shared/catchAsync';
 import sendResponse from '../../../../shared/sendResponse';
 import { DailyTrackingService } from './daily.tracking.service';
 import { AthleteModel } from '../../adminPanel/athlete/athleteModel';
+import { sendCheckingNotificationForDailyTracking } from '../../notification/notification.service';
 
 const dailyTrackingService = new DailyTrackingService();
 
@@ -120,4 +121,76 @@ export class DailyTrackingController {
       });
     }
   );
+
+  createDailyTrackingCommentNotification = catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const coachId = req.user.id;
+      const userId = req.params.userId;
+      const title=`Daily Tracking Comment by ${req.user.name}`;
+      const athlete = await AthleteModel.findById(userId).select(
+        'fcmToken'
+      );
+      if (!athlete || !athlete.fcmToken) {
+        throw new Error('Athlete FCM token not found');
+      }
+      const result = await sendCheckingNotificationForDailyTracking(
+        title,
+        req.body.comments,
+        athlete.fcmToken,
+        userId,
+        coachId
+      );
+
+      sendResponse(res, {
+        success: true,
+        statusCode: StatusCodes.CREATED,
+        message: 'Daily tracking comments notification created successfully',
+        data: result,
+      });
+    }
+  );
+
+  /**
+   * Get single daily tracking by ID
+   * GET /api/v1/daily-tracking/:id
+   */
+  getDailyTrackingAllNotification = catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const userId = req.user.id;
+      const athlete = await AthleteModel.findById(userId).select(
+        'coachId'
+      );
+      if (!athlete || !athlete.coachId) {
+        throw new Error('Coach not assigned to this athlete');
+      }
+      const result = await dailyTrackingService.getDailyTrackingPushNotification(userId, athlete.coachId);
+
+      sendResponse(res, {
+        success: true,
+        statusCode: StatusCodes.OK,
+        message: 'Daily tracking notifications fetched successfully',
+        data: result,
+      });
+    }
+  );
+
+
+    /**
+   * Get single daily tracking by ID
+   * GET /api/v1/daily-tracking/:id
+   */
+  getSingleDailyTrackingPushNotification = catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const { id } = req.params;
+      const result = await dailyTrackingService.getSingleDailyTrackingPushNotification(id);
+
+      sendResponse(res, {
+        success: true,
+        statusCode: StatusCodes.OK,
+        message: 'Daily tracking notification fetched successfully',
+        data: result,
+      });
+    }
+  );
+
 }

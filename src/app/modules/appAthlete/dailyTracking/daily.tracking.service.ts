@@ -2,6 +2,7 @@ import { DailyTrackingModel } from './daily.tracking.model';
 import { DailyTracking } from './daily.tracking.interface';
 import { calculateNumericAverages } from '../../../../util/calculate.average';
 import { weeklyReportService } from '../../athleteWeeklyReport/history.service';
+import { DailyTrackingNotificationHistoryModel } from './dailytracking.notification.model';
 
 export class DailyTrackingService {
   /**
@@ -104,5 +105,20 @@ export class DailyTrackingService {
    */
   async deleteDailyTracking(id: string): Promise<DailyTracking | null> {
     return DailyTrackingModel.findByIdAndDelete(id);
+  }
+
+
+    /**
+   * Get daily tracking push notifications
+   */
+  async getDailyTrackingPushNotification(userId: string,coachId: string)  {
+    return DailyTrackingNotificationHistoryModel.find({ userId, coachId }).sort({ createdAt: -1 });
+  }
+
+      /**
+   * Get single daily tracking push notification by ID
+   */
+  async getSingleDailyTrackingPushNotification(id: string)  {
+    return DailyTrackingNotificationHistoryModel.findById(id);
   }
 }

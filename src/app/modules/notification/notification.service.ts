@@ -10,6 +10,7 @@ import {
   SendNotificationResult,
 } from './notification.interface';
 import { Types } from 'mongoose';
+import { DailyTrackingNotificationHistoryModel } from '../appAthlete/dailyTracking/dailytracking.notification.model';
 
 // Save or update FCM token when user login.
 
@@ -146,6 +147,52 @@ export const sendPushNotification = async (
     };
   }
 };
+
+
+
+/**
+ * Send push notification via Firebase Cloud Messaging
+ */
+export const sendCheckingNotificationForDailyTracking = async (
+  title: string,
+  description: string,
+  token: string,
+  userId: string,
+  coachId: string
+): Promise<SendNotificationResult> => {
+  if (!token) {
+    return { success: false, message: 'FCM token is required' };
+  }
+
+  const message: admin.messaging.Message = {
+    token,
+    notification: {
+      title,
+      body: description,
+    },
+  };
+
+  try {
+    const response = await admin.messaging().send(message);
+
+    // Save notification history (optional but recommended)
+    await DailyTrackingNotificationHistoryModel.create({
+      userId: userId,
+      coachId: coachId,
+      title,
+      comments:description,
+      fcmToken: token,
+    });
+
+    return { success: true, message: 'Notification is send to Coach' };
+  } catch (error) {
+    console.error('Push notification error:', error);
+    return { success: false, message: 'Failed to send notification' };
+  }
+};
+
+
+
 
 export const NotificationService = {
   saveFCMToken,

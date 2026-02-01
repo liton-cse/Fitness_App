@@ -13,7 +13,7 @@ export class SupplementItemController {
    */
   addSupplement = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
-      const userId = req.user.id;
+      const userId = req.params.userId;
       let coachId;
       if (req.user && req.user.role == 'COACH') {
         coachId = req.user.id;
@@ -145,11 +145,13 @@ export class SupplementItemController {
     }
   );
 
-    updateSupplementByCoach = catchAsync(
+  updateSupplementByCoach = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
       const coachId=req.user.id;
-      const userId= req.params.user
-      
+      const userId= req.params.userId
+      console.log('Coach ID:', coachId);
+      console.log('User ID:', userId);
+      console.log('Supplement ID:', req.params.id);
       const result = await supplementService.updateSupplementByCoach(
         req.params.id,
         req.body,coachId,userId

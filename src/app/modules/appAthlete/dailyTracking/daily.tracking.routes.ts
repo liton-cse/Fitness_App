@@ -9,6 +9,17 @@ const controller = new DailyTrackingController();
 /**
  * Daily Tracking Routes
  */
+router.get(
+  '/notifications',
+  auth(USER_ROLES.ATHLETE),
+  controller.getDailyTrackingAllNotification
+);  
+
+router.get(
+  '/notifications/single/:id',
+  auth(USER_ROLES.ATHLETE),
+  controller.getSingleDailyTrackingPushNotification
+);
 
 router.post('/', auth(USER_ROLES.ATHLETE), controller.createDailyTracking);
 router.get(
@@ -17,11 +28,10 @@ router.get(
   controller.getAllDailyTracking
 );
 
-router.get('/:id', controller.getSingleDailyTracking);
+router.get('/single/:id', controller.getSingleDailyTracking);
 
 router.put(
   '/:id',
-
   auth(USER_ROLES.COACH, USER_ROLES.ATHLETE),
   controller.updateDailyTracking
 );
@@ -31,5 +41,14 @@ router.delete(
   auth(USER_ROLES.COACH, USER_ROLES.SUPER_ADMIN),
   controller.deleteDailyTracking
 );
+
+router.post(
+  '/comment-notification/:userId',
+  auth(USER_ROLES.COACH),
+  controller.createDailyTrackingCommentNotification
+);
+
+  
+
 
 export const DailyTrackingRoutes = router;

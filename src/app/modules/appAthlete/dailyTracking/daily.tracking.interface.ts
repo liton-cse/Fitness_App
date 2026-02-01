@@ -124,3 +124,14 @@ export interface BloodPressure {
 export interface IDailyTrackingHistory {
   userId: string;
 }
+
+
+export interface IDailyTrackingNotificationHistory{
+  userId:string;
+  coachId:string;
+  title:string;
+  comments:string;
+  fcmToken?: string;
+  read?: boolean;
+  sentAt?: Date;
+}
