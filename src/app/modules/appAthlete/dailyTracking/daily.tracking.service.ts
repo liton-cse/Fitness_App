@@ -16,69 +16,84 @@ export class DailyTrackingService {
   /**
    * Get all daily tracking entries
    */
-  async getAllDailyTracking(
-    userId: string,
-    coachId: string
-  ): Promise<{
-    weekData: (Omit<DailyTracking, keyof Document> & { day: string })[];
-    averages: ReturnType<typeof calculateNumericAverages>;
-  }> {
-    const latestEntry = await DailyTrackingModel.findOne({ userId })
-      .sort({ date: 1 })
-      .select('date')
-      .lean();
+async getAllDailyTracking(
+  userId: string,
+  coachId: string,
+  query?: { date?: string }
+): Promise<{
+  weekData: (Partial<Omit<DailyTracking, keyof Document>> & {
+    day: string;
+    date: string;
+  })[];
+  averages: ReturnType<typeof calculateNumericAverages>;
+}> {
 
-    if (!latestEntry?.date) {
-      return { weekData: [], averages: {} as any };
-    }
-
-    const [year, month, day] = latestEntry.date.split('-').map(Number);
-    const latestDate = new Date(year, month - 1, day);
-
-    const monday = new Date(latestDate);
-    monday.setDate(latestDate.getDate() - ((latestDate.getDay() + 6) % 7));
-
-    const weekDates: string[] = [];
-    for (let i = 0; i < 7; i++) {
-      const d = new Date(monday);
-      d.setDate(monday.getDate() + i);
-      const yyyy = d.getFullYear();
-      const mm = String(d.getMonth() + 1).padStart(2, '0');
-      const dd = String(d.getDate()).padStart(2, '0');
-      weekDates.push(`${yyyy}-${mm}-${dd}`);
-    }
-
-    const data = await DailyTrackingModel.find({
-      userId,
-      date: { $in: weekDates },
-    })
-      .sort({ date: 1 })
-      .lean();
-
-    const dayNames = [
-      'Monday',
-      'Tuesday',
-      'Wednesday',
-      'Thursday',
-      'Friday',
-      'Saturday',
-      'Sunday',
-    ];
-
-    const weekData = data.map(item => {
-      const [y, m, d] = item.date.split('-').map(Number);
-      const dateObj = new Date(y, m - 1, d);
-      return {
-        ...item,
-        day: dayNames[dateObj.getDay()],
-      };
-    });
-
-    const averages = calculateNumericAverages(data);
-    await weeklyReportService({ userId, coachId, ...averages });
-
-    return { weekData, averages };
+  let baseDate = new Date();
+  if (query?.date) {
+    const [y, m, d] = query.date.split('-').map(Number);
+    baseDate = new Date(y, m - 1, d);
   }
+
+  
+  const monday = new Date(baseDate);
+  monday.setDate(baseDate.getDate() - ((baseDate.getDay() + 6) % 7));
+
+  
+  const weekDates: string[] = [];
+  for (let i = 1; i <= 7; i++) {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    weekDates.push(d.toISOString().split('T')[0]); // "YYYY-MM-DD"
+  }
+
+  
+  const data = await DailyTrackingModel.find({
+    userId,
+    date: { $in: weekDates },
+  }).lean();
+
+  const dayNames = [
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday',
+    'Sunday',
+  ];
+
+  const getDayName = (date: Date) => {
+    const jsDay = date.getDay(); 
+    return dayNames[(jsDay + 6) % 7]; 
+  };
+
+  
+  const dataMap = new Map(data.map(item => [item.date, item]));
+
+  
+  const weekData = weekDates.map(date => {
+    const entry = dataMap.get(date);
+
+    const [y, m, d] = date.split('-').map(Number);
+    const dateObj = new Date(y, m - 1, d);
+
+    return {
+      ...(entry || { userId, coachId, date }), 
+      day: getDayName(dateObj),
+    };
+  });
+
+  
+  const averages = calculateNumericAverages(data);
+
+  
+  await weeklyReportService({ userId, coachId, ...averages });
+
+  
+  return { weekData, averages };
+}
+
+
 
   /**
    * Get single daily tracking by ID

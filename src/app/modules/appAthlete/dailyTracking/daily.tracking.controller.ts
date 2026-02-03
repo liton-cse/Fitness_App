@@ -48,9 +48,11 @@ export class DailyTrackingController {
     async (req: Request, res: Response, next: NextFunction) => {
       const userId = req.params.userId;
       const coachId = req.user.id;
+      const date = req.query.date as string | undefined;
       const result = await dailyTrackingService.getAllDailyTracking(
         userId,
-        coachId
+        coachId,
+        { date }
       );
 
       sendResponse(res, {
@@ -126,7 +128,7 @@ export class DailyTrackingController {
     async (req: Request, res: Response, next: NextFunction) => {
       const coachId = req.user.id;
       const userId = req.params.userId;
-      const title=`Daily Tracking Comment by ${req.user.name}`;
+      const title=`Daily Tracking note by coach: ${req.user.name}`;
       const athlete = await AthleteModel.findById(userId).select(
         'fcmToken'
       );

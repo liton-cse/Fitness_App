@@ -66,7 +66,8 @@ export class SupplementItemController {
       const { search, page, limit } = req.query;
       let userId;
       let coachId;
-      if (req.user && req.user.role == 'ATHLETE') {
+      userId = req.params.userId;
+      if (req.user && req.user.role == 'ATHLETE' && !userId) {
         userId = req.user.id;
       } else if (req.user && req.user.role == 'COACH') {
         coachId = req.user.id;
