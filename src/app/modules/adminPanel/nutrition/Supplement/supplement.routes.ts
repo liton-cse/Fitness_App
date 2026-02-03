@@ -30,7 +30,7 @@ router.post(
 
 router.post(
   '/',
-  auth(USER_ROLES.SUPER_ADMIN),
+  auth(USER_ROLES.SUPER_ADMIN,USER_ROLES.COACH),
   supplementController.addSupplementByAdmin
 );
 router.put(
