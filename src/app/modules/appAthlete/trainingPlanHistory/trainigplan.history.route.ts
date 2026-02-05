@@ -11,7 +11,7 @@ const controller = new TrainingPushDayHistoryController();
  */
 router.post(
   '/',
-  auth(USER_ROLES.ATHLETE, USER_ROLES.COACH),
+  auth(USER_ROLES.ATHLETE, USER_ROLES.COACH, USER_ROLES.SUPER_ADMIN),
   controller.addTrainingPushDayHistory
 );
 
@@ -20,7 +20,7 @@ router.post(
  */
 router.get(
   '/',
-  auth(USER_ROLES.ATHLETE, USER_ROLES.COACH),
+  auth(USER_ROLES.ATHLETE, USER_ROLES.COACH, USER_ROLES.SUPER_ADMIN),
   controller.getTrainingPushDayHistory
 );
 
@@ -29,7 +29,7 @@ router.get(
  */
 router.patch(
   '/:id',
-  auth(USER_ROLES.ATHLETE, USER_ROLES.COACH),
+  auth(USER_ROLES.ATHLETE, USER_ROLES.COACH, USER_ROLES.SUPER_ADMIN),
   controller.updateTrainingPushDayHistory
 );
 
@@ -38,7 +38,7 @@ router.patch(
  */
 router.delete(
   '/:id',
-  auth(USER_ROLES.ATHLETE, USER_ROLES.COACH),
+  auth(USER_ROLES.ATHLETE, USER_ROLES.COACH, USER_ROLES.SUPER_ADMIN),
   controller.deleteTrainingPushDayHistory
 );
 
