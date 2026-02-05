@@ -1,15 +1,26 @@
 import { ITrainingPushDayHistory } from './trainigplan.history.interface';
 import { TrainingPushDayHistoryModel } from './trainingplan.history.model';
 
-function calculateOneRM(weight: number, reps: number): number {
-  return Math.round(weight * (1 + reps / 30));
-}
+export const calculateOneRM = (weight: number, reps: number) => {
+  if (!weight || !reps) return 0;
 
-function calculateTotalVolume(
-  pushData: { weight: number; reps: number }[]
-): number {
-  return pushData.reduce((total, set) => total + set.weight * set.reps, 0);
-}
+  // Epley Formula
+  return Number((weight * (1 + reps / 30)).toFixed(2));
+};
+
+
+export const calculateTotalVolume = (pushData: any[]) => {
+  return pushData.reduce((total, set) => {
+    const weight = Number(set.weight);
+    const reps = Number(set.repRange);
+    const sets = Number(set.set);
+
+    if (!weight || !reps || !sets) return total;
+
+    return total + weight * reps * sets;
+  }, 0);
+};
+
 function calculateVolumePR(previousHistories: any[], currentVolume: number) {
   const previousVolumes = previousHistories.map(h =>
     calculateTotalVolume(h.pushData)
@@ -57,18 +68,22 @@ export class TrainingPushDayHistoryService {
       };
     }
 
-    const enrichedHistories = histories.map(history => {
-      const totalWeight = calculateTotalVolume(history.pushData);
+      const enrichedHistories = histories.map(history => {
+        const totalWeight = calculateTotalVolume(history.pushData);
 
-      return {
-        ...history,
-        totalWeight,
-        pushData: history.pushData.map(set => ({
-          ...set,
-          oneRM: calculateOneRM(set.weight, set.reps),
-        })),
-      };
-    });
+        return {
+          ...history,
+          totalWeight,
+          pushData: history.pushData.map(set => ({
+            ...set,
+            oneRM: calculateOneRM(
+              Number(set.weight),
+              Number(set.repRange) // 🔥 correct field
+            ),
+          })),
+        };
+      });
+
 
     // 🟢 PR CHECK (only last workout)
     const currentHistory = enrichedHistories[enrichedHistories.length - 1];

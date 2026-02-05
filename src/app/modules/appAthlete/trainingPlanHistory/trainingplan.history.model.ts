@@ -24,7 +24,7 @@ const PushDataSchema = new Schema<IPushData>(
     repRange: { type: String, required: true },
     rir: { type: String, required: true },
     set: { type: Number, required: true },
-    exerciseName: { type: String, required: true },
+    exerciseName: { type: String },
   },
   { _id: false }
 );
