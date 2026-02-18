@@ -33,6 +33,10 @@ const PEDDatabaseSchema = new Schema<IPEDDatabase>(
     coachId: { type: String, default: '' },
     week: { type: String, default: '' },
     categories: { type: [CategorySchema], default: [] },
+    isTemplate: {
+  type: Boolean,
+  default: false,
+}
   },
   { timestamps: true }
 );

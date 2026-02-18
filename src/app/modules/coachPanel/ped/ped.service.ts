@@ -6,15 +6,7 @@ import { PEDDatabaseModel } from './ped.model';
 
 const isSundayEvening = () => {
   const now = new Date();
-  return now.getDay() === 0 && now.getHours() >= 18; // Sunday after 6 PM
-};
-
-const getCurrentWeekLabel = async (coachId: string, athleteId: string) => {
-  const count = await PEDDatabaseModel.countDocuments({
-    coachId,
-    athleteId,
-  });
-  return `week_${count || 1}`;
+  return now.getDay() === 0 && now.getHours() >= 18;
 };
 
 const getNextWeekLabel = (week: string) => {
@@ -22,68 +14,182 @@ const getNextWeekLabel = (week: string) => {
   return `week_${num + 1}`;
 };
 
+const getWeekDateRange = () => {
+  const now = new Date();
+
+  const start = new Date(now);
+  start.setDate(now.getDate() - now.getDay() + 1); // Monday
+  start.setHours(0, 0, 0, 0);
+
+  const end = new Date(start);
+  end.setDate(start.getDate() + 7);
+
+  return { start, end };
+};
+
+
+function mergeTemplateWithExisting(templateCats: any[], existingCats: any[]) {
+  const existingMap = new Map(
+    existingCats.map(cat => [cat.name, cat])
+  );
+
+  return templateCats.map(templateCat => {
+    const existingCat = existingMap.get(templateCat.name);
+
+    // 🟢 New Category → Add Full Template Category
+    if (!existingCat) {
+      return structuredClone(templateCat);
+    }
+
+    // 🟡 Merge SubCategories
+    const existingSubMap = new Map(
+      existingCat.subCategories.map((sub: any) => [sub.name, sub])
+    );
+
+    const mergedSub = templateCat.subCategories.map((templateSub: any) => {
+      return existingSubMap.get(templateSub.name)
+        ? existingSubMap.get(templateSub.name) // keep athlete data
+        : structuredClone(templateSub); // add new sub
+    });
+
+    return {
+      ...existingCat,
+      subCategories: mergedSub,
+    };
+  });
+}
+
+
+
+
+
 /* ---------- Service ---------- */
 
 export class PEDDatabaseService {
-  async createOrUpdatePEDTemplate(payload: {
-    category: string;
-    subCategory: { name: string }[];
-  }) {
-    const { category, subCategory } = payload;
+async createOrUpdatePEDTemplate(payload: {
+  category: string;
+  subCategory: { name: string }[];
+}) {
+  const { category, subCategory } = payload;
 
-    // 1️⃣ Find the SINGLE template document
-    let pedDoc = await PEDDatabaseModel.findOne();
+  // 1️⃣ Get template doc
+  let pedDoc = await PEDDatabaseModel.findOne({ isTemplate: true });
 
-    // 2️⃣ Create ONLY ONCE
-    if (!pedDoc) {
-      pedDoc = await PEDDatabaseModel.create({
-        categories: [],
-      });
-    }
+  // 2️⃣ Create template only once
+  if (!pedDoc) {
+    pedDoc = await PEDDatabaseModel.create({
+      isTemplate: true,
+      categories: [],
+    });
+  }
 
-    // 3️⃣ Prepare subCategories
-    const formattedSubCategories = subCategory.map(sub => ({
-      name: sub.name,
-      dosage: '',
-      frequency: '',
-      mon: '',
-      tue: '',
-      wed: '',
-      thu: '',
-      fri: '',
-      sat: '',
-      sun: '',
-    }));
+  // 3️⃣ Format subCategories
+  const formattedSubCategories = subCategory.map(sub => ({
+    name: sub.name,
+    dosage: '',
+    frequency: '',
+    mon: '',
+    tue: '',
+    wed: '',
+    thu: '',
+    fri: '',
+    sat: '',
+    sun: '',
+  }));
 
-    // 4️⃣ Find category
-    const existingCategory = pedDoc.categories.find(
-      (cat: any) => cat.name === category
+  // 4️⃣ Find category in template
+  const existingCategory = pedDoc.categories.find(
+    (cat: any) => cat.name === category
+  );
+
+  let newlyAddedCategory = null;
+  let newlyAddedSubs: any[] = [];
+
+  if (existingCategory) {
+    const existingNames = new Set(
+      existingCategory.subCategory.map((sub: any) => sub.name)
     );
 
-    if (existingCategory) {
-      // 5️⃣ Push ONLY new subCategories
-      const existingNames = new Set(
-        existingCategory.subCategory.map((sub: any) => sub.name)
-      );
+    newlyAddedSubs = formattedSubCategories.filter(
+      sub => !existingNames.has(sub.name)
+    );
 
-      const newSubCategories = formattedSubCategories.filter(
-        sub => !existingNames.has(sub.name)
-      );
+    if (newlyAddedSubs.length > 0) {
+      existingCategory.subCategory.push(...newlyAddedSubs);
+    }
+  } else {
+    newlyAddedCategory = {
+      name: category,
+      subCategory: formattedSubCategories,
+    };
 
-      if (newSubCategories.length > 0) {
-        existingCategory.subCategory.push(...newSubCategories);
-      }
-    } else {
-      // 6️⃣ Push new category
-      pedDoc.categories.push({
-        name: category,
-        subCategory: formattedSubCategories,
-      });
+    pedDoc.categories.push(newlyAddedCategory);
+  }
+
+  await pedDoc.save();
+
+  // ⭐⭐⭐ IMPORTANT PART ⭐⭐⭐
+  // Update all athlete documents
+
+  // Get all athlete docs (exclude template)
+  const athleteDocs = await PEDDatabaseModel.find({
+    isTemplate: { $ne: true },
+  });
+
+  for (const doc of athleteDocs) {
+    // 👉 If NEW CATEGORY added
+    if (newlyAddedCategory) {
+      doc.categories.push(structuredClone(newlyAddedCategory));
     }
 
-    await pedDoc.save();
-    return pedDoc;
+    // 👉 If NEW SUBCATEGORY added
+    if (newlyAddedSubs.length > 0) {
+      const targetCat = doc.categories.find(
+        (c: any) => c.name === category
+      );
+
+      if (targetCat) {
+        const existingSubNames = new Set(
+          targetCat.subCategory.map((s: any) => s.name)
+        );
+
+        const subsToAdd = newlyAddedSubs.filter(
+          sub => !existingSubNames.has(sub.name)
+        );
+
+        if (subsToAdd.length > 0) {
+          targetCat.subCategory.push(...structuredClone(subsToAdd));
+        }
+      }
+    }
+
+    await doc.save();
   }
+
+  return pedDoc;
+}
+
+
+  /**
+   * Create athlete PED data from template
+   */ 
+  async createFromTemplate(
+  athleteId: string,
+  coachId: string,
+  week: string
+) {
+  const template = await PEDDatabaseModel.findOne().lean();
+
+  if (!template) throw new Error('PED template not found');
+
+  return PEDDatabaseModel.create({
+    athleteId,
+    coachId,
+    week,
+    categories: structuredClone(template.categories),
+  });
+}
+
 
   async getPEDByWeek(week: string) {
     return PEDDatabaseModel.findOne({ week }).lean();
@@ -110,50 +216,79 @@ export class PEDDatabaseService {
    * If athlete-specific data doesn't exist,
    * create it from template
    */
-  async getOrCreateForAthlete(athleteId: string, coachId: string) {
-    // 1️⃣ Get latest athlete record
-    const latestRecord = await PEDDatabaseModel.findOne({
-      athleteId,
-      coachId,
-    }).sort({ createdAt: -1 });
+async getOrCreateForAthlete(athleteId: string, coachId: string) {
+  // 1️⃣ Latest record
+  const latestRecord = await PEDDatabaseModel.findOne({
+    athleteId,
+    coachId,
+  }).sort({ createdAt: -1 });
 
-    let week: string;
+  let week: string;
 
-    // 2️⃣ Decide week
-    if (latestRecord && isSundayEvening()) {
-      week = getNextWeekLabel(latestRecord.week);
-    } else if (latestRecord) {
-      week = latestRecord.week;
-    } else {
-      week = 'week_1';
-    }
-
-    // 3️⃣ Check if record already exists
-    let record = await PEDDatabaseModel.findOne({
-      athleteId,
-      coachId,
-      week,
-    });
-
-    if (record) return record;
-
-    // 4️⃣ Get TEMPLATE
-    const template = await PEDDatabaseModel.findOne().lean();
-
-    if (!template) {
-      throw new Error('PED template not found');
-    }
-
-    // 5️⃣ Create athlete copy
-    record = await PEDDatabaseModel.create({
-      athleteId,
-      coachId,
-      week,
-      categories: structuredClone(template.categories),
-    });
-
-    return record;
+  // ✅ First Ever Record
+  if (!latestRecord) {
+    week = 'week_1';
   }
+  // ✅ Only Sunday Evening → New Week
+  else if (isSundayEvening()) {
+    week = getNextWeekLabel(latestRecord.week);
+  }
+  // ❌ Other Days → Return Latest
+  else {
+    return latestRecord;
+  }
+
+  // 2️⃣ Prevent multiple creation in same week date range
+  const { start, end } = getWeekDateRange();
+
+  const alreadyCreatedThisWeek = await PEDDatabaseModel.findOne({
+    athleteId,
+    coachId,
+    createdAt: {
+      $gte: start,
+      $lt: end,
+    },
+  });
+
+  if (alreadyCreatedThisWeek) return alreadyCreatedThisWeek;
+
+  // 3️⃣ Check if week already exists
+  let record = await PEDDatabaseModel.findOne({
+    athleteId,
+    coachId,
+    week,
+  });
+
+  if (record) return record;
+
+  // 4️⃣ Get main template
+  const template = await PEDDatabaseModel.findOne().lean();
+  if (!template) throw new Error('PED template not found');
+
+  // 5️⃣ Merge template with athlete last data
+  let mergedCategories = template.categories;
+
+  if (latestRecord) {
+    mergedCategories = mergeTemplateWithExisting(
+      template.categories,
+      latestRecord.categories
+    );
+  }
+
+  // 6️⃣ Create record
+  record = await PEDDatabaseModel.create({
+    athleteId,
+    coachId,
+    week,
+    categories: mergedCategories,
+  });
+
+  return record;
+}
+
+
+
+
 
   /**
    * Coach updates athlete PED data

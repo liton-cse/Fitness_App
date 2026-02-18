@@ -96,4 +96,20 @@ export class DailyTrackingController {
       data: result,
     });
   });
+
+
+
+ getFoodSuggestionsController = catchAsync(
+  async (req: Request, res: Response) => {
+    const { search } = req.query;
+
+    const result = await dailyTrackingService.getFoodSuggestionsService(search as string);
+    sendResponse(res, {
+      success: true,
+      statusCode: StatusCodes.OK,
+      message: 'Food suggestions retrieved successfully',
+      data: result,
+    });
+  }
+);
 }

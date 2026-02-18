@@ -29,7 +29,7 @@ router.patch(
  */
 
 // Get all PEDs for logged-in athlete (with optional week filter)
-router.get('/app-data', controller.getPEDForAthleteInApp);
+router.get('/app-data', auth(USER_ROLES.ATHLETE), controller.getPEDForAthleteInApp);
 router.get('/', auth(USER_ROLES.COACH, USER_ROLES.SUPER_ADMIN), controller.getPEDByAthlete);
 
 // Optional: Get PED by week via query param

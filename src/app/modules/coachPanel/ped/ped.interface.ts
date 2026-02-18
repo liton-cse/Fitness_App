@@ -23,6 +23,7 @@ export interface IPEDDatabase extends Document {
   athleteId?: string | null;
   week: string;
   categories: ICategory[];
+  isTemplate: boolean;
   createdAt: Date;
   updatedAt: Date;
 }

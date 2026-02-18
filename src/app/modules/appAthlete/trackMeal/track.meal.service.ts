@@ -305,4 +305,17 @@ export class DailyTrackingService {
     await tracking.deleteOne();
     return { message: 'Daily tracking deleted entirely' };
   }
+
+
+ async getFoodSuggestionsService(search: string) {
+  if (!search) return [];
+
+  const foods = await FoodItemModel.find({
+    foodName: { $regex: search, $options: 'i' } // case insensitive
+  })
+    .select('_id foodName')
+    .limit(10); 
+
+  return foods;
+};
 }

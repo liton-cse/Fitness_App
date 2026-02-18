@@ -20,10 +20,12 @@ export class PEDDatabaseController {
     async (req: Request, res: Response, next: NextFunction) => {
       // assuming coachId is attached by auth middleware
       const { category, subCategory } = req.body;
+      const coachId = req.user.id;
 
       const result = await pedService.createOrUpdatePEDTemplate({
         category,
         subCategory,
+        
       });
 
       sendResponse(res, {

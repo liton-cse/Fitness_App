@@ -24,8 +24,7 @@ const auth =
         );
         //set user to header
         req.user = verifyUser;
-        console.log(roles.length);
-        console.log(verifyUser.role);
+        console.log(roles.includes(verifyUser.role));
         //guard user
         if (roles.length && !roles.includes(verifyUser.role)) {
           throw new ApiError(
