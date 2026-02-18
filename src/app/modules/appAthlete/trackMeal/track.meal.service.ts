@@ -311,11 +311,10 @@ export class DailyTrackingService {
   if (!search) return [];
 
   const foods = await FoodItemModel.find({
-    foodName: { $regex: search, $options: 'i' } // case insensitive
+    name: { $regex: search, $options: 'i' } // case insensitive
   })
-    .select('_id foodName')
+    .select('name')
     .limit(10); 
-
   return foods;
 };
 }
