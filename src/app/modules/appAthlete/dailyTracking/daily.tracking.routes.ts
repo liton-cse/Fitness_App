@@ -27,7 +27,7 @@ router.get(
   auth(USER_ROLES.ATHLETE, USER_ROLES.COACH),
   controller.getAllDailyTracking
 );
-
+router.get('/by-date', auth(USER_ROLES.ATHLETE), controller.getAllDailyTrackingByDate);
 router.get('/single/:id', controller.getSingleDailyTracking);
 
 router.put(

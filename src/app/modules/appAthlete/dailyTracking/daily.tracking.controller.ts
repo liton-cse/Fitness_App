@@ -195,4 +195,26 @@ export class DailyTrackingController {
     }
   );
 
+    /**
+   * Get all daily tracking records
+   * GET /api/v1/daily-tracking
+   */
+  getAllDailyTrackingByDate = catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const userId = req.user.id;
+      const date = req.query.date 
+      const result = await dailyTrackingService.getDailyTrackingBySearch(
+        userId,
+        date as string
+      );
+
+      sendResponse(res, {
+        success: true,
+        statusCode: StatusCodes.OK,
+        message: 'Daily tracking fetched successfully',
+        data: result,
+      });
+    }
+  );
+
 }

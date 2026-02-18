@@ -136,4 +136,8 @@ async getAllDailyTracking(
   async getSingleDailyTrackingPushNotification(id: string)  {
     return DailyTrackingNotificationHistoryModel.findById(id);
   }
+
+  async getDailyTrackingBySearch(userId: string, date: string): Promise<DailyTracking | null> {
+    return DailyTrackingModel.findOne({ userId, date });
+  }
 }
