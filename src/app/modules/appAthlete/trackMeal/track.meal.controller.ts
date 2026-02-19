@@ -30,6 +30,30 @@ export class DailyTrackingController {
     }
   );
 
+    addDailyTracking = catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+    
+        const userId = req.user.id;
+        const mealId = req.params.id;
+        const food = req.body;
+
+
+      const result = await dailyTrackingService.addDailyTrackingService({
+        userId,
+        mealId,
+        food
+      });
+
+      sendResponse(res, {
+        success: true,
+        statusCode: StatusCodes.CREATED,
+        message: 'Daily tracking updated successfully',
+        data: result,
+      });
+    }
+  );
+
+
   /**
    * Get daily tracking (search by date optional)
    * GET /api/v1/daily-tracking?date=YYYY-MM-DD

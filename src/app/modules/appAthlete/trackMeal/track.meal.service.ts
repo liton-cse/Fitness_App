@@ -307,14 +307,42 @@ export class DailyTrackingService {
   }
 
 
- async getFoodSuggestionsService(search: string) {
-  if (!search) return [];
+  async getFoodSuggestionsService(search: string) {
+    if (!search) return [];
 
-  const foods = await FoodItemModel.find({
-    name: { $regex: search, $options: 'i' } // case insensitive
-  })
-    .select('name')
-    .limit(10); 
-  return foods;
-};
+    const foods = await FoodItemModel.find({
+      name: { $regex: search, $options: 'i' } // case insensitive
+    })
+      .select('name')
+      .limit(10);
+    return foods;
+  }
+  
+async addDailyTrackingService(payload: {
+  userId: string;
+  mealId: string;
+  food: IFoodItem;
+}) {
+  const updatedTracking = await DailyTrackingMealModel.findOneAndUpdate(
+    {
+      userId: payload.userId,
+      "meals._id": payload.mealId, // find specific meal
+    },
+    {
+      $push: {
+        "meals.$.food": payload.food, // push into matched meal
+      },
+    },
+    {
+      new: true, // return updated document
+    }
+  );
+
+  if (!updatedTracking) {
+    throw new Error("Meal not found");
+  }
+
+  return updatedTracking;
+}
+
 }

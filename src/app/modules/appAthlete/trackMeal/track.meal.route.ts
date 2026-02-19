@@ -9,6 +9,7 @@ const controller = new DailyTrackingController();
  * Daily Tracking Routes
  */
 router.post('/', auth(USER_ROLES.ATHLETE), controller.createDailyTracking);
+router.post('/:id', auth(USER_ROLES.ATHLETE), controller.addDailyTracking);
 router.get('/', auth(USER_ROLES.ATHLETE), controller.getDailyTracking);
 router.get('/suggestions', controller.getFoodSuggestionsController);
 router.patch(
