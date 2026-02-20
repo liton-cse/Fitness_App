@@ -49,23 +49,23 @@ export type WomenSymptoms = (typeof WOMEN_SYMPTOMS_VALUES)[number];
 // =====================
 
 export interface DailyTracking {
-  date: string;
-  userId: string;
-  coachId: string;
-  weight: number;
-  sleepHour: number;
-  sleepQuality: string;
-  sick: boolean;
-  water: string;
+  date?: string;
+  userId?: string;
+  coachId?: string;
+  weight?: number;
+  sleepHour?: number;
+  sleepQuality?: string;
+  sick?: boolean;
+  water?: string;
 
-  energyAndWellBeing: EnergyAndWellBeing;
-  training: Training;
-  activityStep: number;
-  nutrition: Nutrition;
-  woman: WomanHealth;
-  ped: Medication;
-  bloodPressure: BloodPressure;
-  dailyNotes: string;
+  energyAndWellBeing?: EnergyAndWellBeing;
+  training?: Training;
+  activityStep?: number;
+  nutrition?: Nutrition;
+  woman?: WomanHealth;
+  ped?: Medication;
+  bloodPressure?: BloodPressure;
+  dailyNotes?: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -75,50 +75,50 @@ export interface DailyTracking {
 // =====================
 
 export interface EnergyAndWellBeing {
-  energyLevel: number;
-  stressLevel: number;
-  muscelLevel: number;
-  mood: number;
-  motivation: number;
-  bodyTemperature: string;
+  energyLevel?: number;
+  stressLevel?: number;
+  muscelLevel?: number;
+  mood?: number;
+  motivation?: number;
+  bodyTemperature?: string;
 }
 
 export interface Training {
-  trainingCompleted: boolean;
-  trainingPlan: TrainingPlan[];
-  cardioCompleted: boolean;
-  cardioType: CardioType;
-  duration: string;
+  trainingCompleted?: boolean;
+  trainingPlan?: TrainingPlan[];
+  cardioCompleted?: boolean;
+  cardioType?: CardioType;
+  duration?: string;
 }
 
 export interface Nutrition {
-  calories: number;
-  carbs: number;
-  protein: number;
-  fats: number;
-  hungerLevel: number;
-  digestionLevel: number;
-  salt: number;
+  calories?: number;
+  carbs?: number;
+  protein?: number;
+  fats?: number;
+  hungerLevel?: number;
+  digestionLevel?: number;
+  salt?: number;
 }
 
 export interface WomanHealth {
-  cyclePhase: CyclePhase;
-  cycleDay: string;
-  pmsSymptoms: number;
-  cramps: number;
-  symptoms: WomenSymptoms[];
+  cyclePhase?: CyclePhase;
+  cycleDay?: string;
+  pmsSymptoms?: number;
+  cramps?: number;
+  symptoms?: WomenSymptoms[];
 }
 
 export interface Medication {
-  dailyDosage: string;
-  sideEffect: string;
+  dailyDosage?: string;
+  sideEffect?: string;
 }
 
 export interface BloodPressure {
-  systolic: string;
-  diastolic: string;
-  restingHeartRate: string;
-  bloodGlucose: string;
+  systolic?: string;
+  diastolic?: string;
+  restingHeartRate?: string;
+  bloodGlucose?: string;
 }
 
 export interface IDailyTrackingHistory {
