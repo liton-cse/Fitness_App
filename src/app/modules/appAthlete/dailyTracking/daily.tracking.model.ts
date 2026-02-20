@@ -13,50 +13,50 @@ import {
 
 const EnergyAndWellBeingSchema = new Schema(
   {
-    energyLevel: { type: Number, required: true },
-    stressLevel: { type: Number, required: true },
-    muscelLevel: { type: Number, required: true },
-    mood: { type: Number, required: true },
-    motivation: { type: Number, required: true },
-    bodyTemperature: { type: String, required: true },
+    energyLevel: { type: Number, required: false },
+    stressLevel: { type: Number, required: false },
+    muscelLevel: { type: Number, required: false },
+    mood: { type: Number, required: false },
+    motivation: { type: Number, required: false },
+    bodyTemperature: { type: String, required: false },
   },
-  { _id: false }
+  { _id: false },
 );
 
 const TrainingSchema = new Schema(
   {
-    trainingCompleted: { type: Boolean, required: true },
+    trainingCompleted: { type: Boolean, required: false },
 
     trainingPlan: {
       type: [String],
       enum: TRAINING_PLAN_VALUES,
-      required: true,
+      required: false,
     },
 
-    cardioCompleted: { type: Boolean, required: true },
+    cardioCompleted: { type: Boolean, required: false },
 
     cardioType: {
       type: String,
       enum: CARDIO_TYPE_VALUES,
-      required: true,
+      required: false,
     },
 
-    duration: { type: String, required: true },
+    duration: { type: String, required: false },
   },
-  { _id: false }
+  { _id: false },
 );
 
 const NutritionSchema = new Schema(
   {
-    calories: { type: Number, required: true },
-    carbs: { type: Number, required: true },
-    protein: { type: Number, required: true },
-    fats: { type: Number, required: true },
-    hungerLevel: { type: Number, required: true },
-    digestionLevel: { type: Number, required: true },
-    salt: { type: Number, required: true },
+    calories: { type: Number, required: false },
+    carbs: { type: Number, required: false },
+    protein: { type: Number, required: false },
+    fats: { type: Number, required: false },
+    hungerLevel: { type: Number, required: false },
+    digestionLevel: { type: Number, required: false },
+    salt: { type: Number, required: false },
   },
-  { _id: false }
+  { _id: false },
 );
 
 const WomanHealthSchema = new Schema(
@@ -64,38 +64,38 @@ const WomanHealthSchema = new Schema(
     cyclePhase: {
       type: String,
       enum: CYCLE_PHASE_VALUES,
-      required: true,
+      required: false,
     },
 
-    cycleDay: { type: String, required: true },
-    pmsSymptoms: { type: Number, required: true },
-    cramps: { type: Number, required: true },
+    cycleDay: { type: String, required: false },
+    pmsSymptoms: { type: Number, required: false },
+    cramps: { type: Number, required: false },
 
     symptoms: {
       type: [String],
       enum: WOMEN_SYMPTOMS_VALUES,
-      required: true,
+      required: false,
     },
   },
-  { _id: false }
+  { _id: false },
 );
 
 const MedicationSchema = new Schema(
   {
-    dailyDosage: { type: String, required: true },
-    sideEffect: { type: String, required: true },
+    dailyDosage: { type: String, required: false },
+    sideEffect: { type: String, required: false },
   },
-  { _id: false }
+  { _id: false },
 );
 
 const BloodPressureSchema = new Schema(
   {
-    systolic: { type: String, required: true },
-    diastolic: { type: String, required: true },
-    restingHeartRate: { type: String, required: true },
-    bloodGlucose: { type: String, required: true },
+    systolic: { type: String, required: false },
+    diastolic: { type: String, required: false },
+    restingHeartRate: { type: String, required: false },
+    bloodGlucose: { type: String, required: false },
   },
-  { _id: false }
+  { _id: false },
 );
 
 // =====================
@@ -104,58 +104,58 @@ const BloodPressureSchema = new Schema(
 
 const DailyTrackingSchema = new Schema<DailyTracking>(
   {
-    date: { type: String, required: true },
+    date: { type: String, required: false },
     userId: {
       type: String,
-      required: true,
+      required: false,
     },
-    coachId: { type: String, required: true },
-    weight: { type: Number, required: true },
-    sleepHour: { type: Number, required: true },
-    sleepQuality: { type: String, required: true },
-    sick: { type: Boolean, required: true },
-    water: { type: String, required: true },
+    coachId: { type: String, required: false },
+    weight: { type: Number, required: false },
+    sleepHour: { type: Number, required: false },
+    sleepQuality: { type: String, required: false },
+    sick: { type: Boolean, required: false },
+    water: { type: String, required: false },
 
     energyAndWellBeing: {
       type: EnergyAndWellBeingSchema,
-      required: true,
+      required: false,
     },
 
     training: {
       type: TrainingSchema,
-      required: true,
+      required: false,
     },
 
-    activityStep: { type: Number, required: true },
+    activityStep: { type: Number, required: false },
 
     nutrition: {
       type: NutritionSchema,
-      required: true,
+      required: false,
     },
 
     woman: {
       type: WomanHealthSchema,
-      required: true,
+      required: false,
     },
 
     ped: {
       type: MedicationSchema,
-      required: true,
+      required: false,
     },
 
     bloodPressure: {
       type: BloodPressureSchema,
-      required: true,
+      required: false,
     },
 
-    dailyNotes: { type: String, required: true },
+    dailyNotes: { type: String, required: false },
   },
-  { timestamps: true }
+  { timestamps: false },
 );
 
-DailyTrackingSchema.index({ userId: 1, date: 1 }, { unique: true });
+DailyTrackingSchema.index({ userId: 1, date: 1 }, { unique: false });
 
 export const DailyTrackingModel = model<DailyTracking>(
   'DailyTracking',
-  DailyTrackingSchema
+  DailyTrackingSchema,
 );
