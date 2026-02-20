@@ -16,84 +16,74 @@ export class DailyTrackingService {
   /**
    * Get all daily tracking entries
    */
-async getAllDailyTracking(
-  userId: string,
-  coachId: string,
-  query?: { date?: string }
-): Promise<{
-  weekData: (Partial<Omit<DailyTracking, keyof Document>> & {
-    day: string;
-    date: string;
-  })[];
-  averages: ReturnType<typeof calculateNumericAverages>;
-}> {
+  async getAllDailyTracking(
+    userId: string,
+    coachId: string,
+    query?: { date?: string },
+  ): Promise<{
+    weekData: (Partial<Omit<DailyTracking, keyof Document>> & {
+      day: string;
+      date: string;
+    })[];
+    averages: ReturnType<typeof calculateNumericAverages>;
+  }> {
+    let baseDate = new Date();
+    if (query?.date) {
+      const [y, m, d] = query.date.split('-').map(Number);
+      baseDate = new Date(y, m - 1, d);
+    }
 
-  let baseDate = new Date();
-  if (query?.date) {
-    const [y, m, d] = query.date.split('-').map(Number);
-    baseDate = new Date(y, m - 1, d);
-  }
+    const monday = new Date(baseDate);
+    monday.setDate(baseDate.getDate() - ((baseDate.getDay() + 6) % 7));
 
-  
-  const monday = new Date(baseDate);
-  monday.setDate(baseDate.getDate() - ((baseDate.getDay() + 6) % 7));
+    const weekDates: string[] = [];
+    for (let i = 1; i <= 7; i++) {
+      const d = new Date(monday);
+      d.setDate(monday.getDate() + i);
+      weekDates.push(d.toISOString().split('T')[0]); // "YYYY-MM-DD"
+    }
 
-  
-  const weekDates: string[] = [];
-  for (let i = 1; i <= 7; i++) {
-    const d = new Date(monday);
-    d.setDate(monday.getDate() + i);
-    weekDates.push(d.toISOString().split('T')[0]); // "YYYY-MM-DD"
-  }
+    const data = await DailyTrackingModel.find({
+      userId,
+      date: { $in: weekDates },
+    }).lean();
 
-  
-  const data = await DailyTrackingModel.find({
-    userId,
-    date: { $in: weekDates },
-  }).lean();
+    const dayNames = [
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday',
+      'Friday',
+      'Saturday',
+      'Sunday',
+    ];
 
-  const dayNames = [
-    'Monday',
-    'Tuesday',
-    'Wednesday',
-    'Thursday',
-    'Friday',
-    'Saturday',
-    'Sunday',
-  ];
-
-  const getDayName = (date: Date) => {
-    const jsDay = date.getDay(); 
-    return dayNames[(jsDay + 6) % 7]; 
-  };
-
-  
-  const dataMap = new Map(data.map(item => [item.date, item]));
-
-  
-  const weekData = weekDates.map(date => {
-    const entry = dataMap.get(date);
-
-    const [y, m, d] = date.split('-').map(Number);
-    const dateObj = new Date(y, m - 1, d);
-
-    return {
-      ...(entry || { userId, coachId, date }), 
-      day: getDayName(dateObj),
+    const getDayName = (date: Date) => {
+      const jsDay = date.getDay();
+      return dayNames[(jsDay + 6) % 7];
     };
-  });
 
-  
-  const averages = calculateNumericAverages(data);
+    const dataMap = new Map(data.map(item => [item.date, item]));
 
-  
-  await weeklyReportService({ userId, coachId, ...averages });
+    const weekData = weekDates.map(date => {
+      const entry = dataMap.get(date);
 
-  
-  return { weekData, averages };
-}
+      const [y, m, d] = date.split('-').map(Number);
+      const dateObj = new Date(y, m - 1, d);
 
+      return {
+        ...(entry || { userId, coachId }),
+        date,
+        day: getDayName(dateObj),
+      };
+    });
 
+    const averages = calculateNumericAverages(data);
+
+    await weeklyReportService({ userId, coachId, ...averages });
+
+    return { weekData, averages };
+  }
 
   /**
    * Get single daily tracking by ID
@@ -107,7 +97,7 @@ async getAllDailyTracking(
    */
   async updateDailyTracking(
     id: string,
-    payload: Partial<DailyTracking>
+    payload: Partial<DailyTracking>,
   ): Promise<DailyTracking | null> {
     return DailyTrackingModel.findByIdAndUpdate(id, payload, {
       new: true,
@@ -122,22 +112,26 @@ async getAllDailyTracking(
     return DailyTrackingModel.findByIdAndDelete(id);
   }
 
-
-    /**
+  /**
    * Get daily tracking push notifications
    */
-  async getDailyTrackingPushNotification(userId: string,coachId: string)  {
-    return DailyTrackingNotificationHistoryModel.find({ userId, coachId }).sort({ createdAt: -1 });
+  async getDailyTrackingPushNotification(userId: string, coachId: string) {
+    return DailyTrackingNotificationHistoryModel.find({ userId, coachId }).sort(
+      { createdAt: -1 },
+    );
   }
 
-      /**
+  /**
    * Get single daily tracking push notification by ID
    */
-  async getSingleDailyTrackingPushNotification(id: string)  {
+  async getSingleDailyTrackingPushNotification(id: string) {
     return DailyTrackingNotificationHistoryModel.findById(id);
   }
 
-  async getDailyTrackingBySearch(userId: string, date: string): Promise<DailyTracking | null> {
+  async getDailyTrackingBySearch(
+    userId: string,
+    date: string,
+  ): Promise<DailyTracking | null> {
     return DailyTrackingModel.findOne({ userId, date });
   }
 }

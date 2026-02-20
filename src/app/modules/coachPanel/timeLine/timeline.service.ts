@@ -91,6 +91,7 @@ export const buildTimelineHistory = async (userId: string) => {
   const groupedByCheckIn = new Map<string, any[]>();
 
   for (const d of allTracking) {
+    if (!d.date) continue;
     const dt = new Date(d.date);
     const checkInDateStr = getPreviousOrSameCheckIn(dt, checkDayIndex)
       .toISOString()

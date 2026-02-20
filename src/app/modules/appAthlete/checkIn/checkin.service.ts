@@ -19,7 +19,7 @@ export class CheckInService {
    */
   async createCheckIn(
     payload: Partial<ICheckInInfo>,
-    coachId: string
+    coachId: string,
   ): Promise<ICheckInInfo> {
     // 1. Create check-in first
     const result = await CheckInModel.create(payload);
@@ -67,7 +67,7 @@ export class CheckInService {
     coachId: string,
     userId: string,
     page: number,
-    limit: number
+    limit: number,
   ) {
     const skip = (page - 1) * limit;
 
@@ -123,8 +123,8 @@ export class CheckInService {
       trackingData?.length > 0 ? trackingData[0].weight : null;
 
     const totalWeight = trackingData.reduce(
-      (sum, item) => sum + item.weight,
-      0
+      (sum, item) => sum + (item?.weight || 0),
+      0,
     );
 
     const averageWeight =
@@ -162,7 +162,7 @@ export class CheckInService {
   async updateCheckIn(
     id: string,
     coachId: string,
-    payload: Partial<ICheckInInfo>
+    payload: Partial<ICheckInInfo>,
   ): Promise<ICheckInInfo | null> {
     const updateData = {
       coachId,
@@ -193,7 +193,7 @@ export class CheckInService {
         title,
         description,
         notification.fcmToken,
-        coachId
+        coachId,
       );
     }
 
@@ -214,7 +214,7 @@ export class CheckInService {
     const result = await CheckInModel.findOneAndUpdate(
       { userId: athleteId, coachId },
       { $set: { checkinCompleted: 'Completed' } },
-      { new: true }
+      { new: true },
     );
 
     return result;
