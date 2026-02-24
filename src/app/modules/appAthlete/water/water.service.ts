@@ -18,8 +18,12 @@ const createWaterToDB = async (
   return result;
 };
 
-const getAllWaterFromDB = async (userId: string) => {
-  return await Water.find({ userId });
+const getAllWaterFromDB = async (userId: string, date?: string) => {
+  const filter: any = { userId };
+  if (date) {
+    filter.date = date;
+  }
+  return await Water.find(filter  ).sort({ createdAt: -1 });
 };
 
 const getSingleWaterFromDB = async (id: string) => {

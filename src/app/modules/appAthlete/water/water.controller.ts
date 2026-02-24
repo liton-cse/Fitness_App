@@ -8,7 +8,7 @@ import sendResponse from '../../../../shared/sendResponse';
 const createWater = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
         const { ...waterData } = req.body;
-        const userId = req.user?.id; // Assuming auth middleware adds user to req
+        const userId = req.user?.id; 
 
     const result =
       await WaterService.createWaterToDB({...waterData, userId});
@@ -24,9 +24,10 @@ const createWater = catchAsync(
 
 const getAllWater = catchAsync(
     async (req: Request, res: Response) => {
-        const userId = req.user?.id; // Assuming auth middleware adds user to req   
+    const userId = req.user?.id; 
+    const date = req.query.date as string;
     const result =
-      await WaterService.getAllWaterFromDB(userId);
+      await WaterService.getAllWaterFromDB(userId, date);
 
     sendResponse(res, {
       success: true,
