@@ -28,7 +28,7 @@ export class AthleteAuthService {
     const { email, password, fcmToken } = payload;
 
     const isExistAthlete = await AthleteModel.findOne({ email }).select(
-      '+password'
+      '+password',
     );
     if (!isExistAthlete) {
       throw new ApiError(StatusCodes.BAD_REQUEST, "Athlete doesn't exist!");
@@ -37,6 +37,10 @@ export class AthleteAuthService {
     // if (!fcmToken) {
     //   throw new ApiError(StatusCodes.BAD_REQUEST, 'FCM token Needed!');
     // }
+
+    if (!password) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'Password is required!');
+    }
 
     if (
       password &&
@@ -58,7 +62,7 @@ export class AthleteAuthService {
         role: isExistAthlete.role,
       },
       config.jwt.jwt_secret as Secret,
-      config.jwt.jwt_expire_in as string
+      config.jwt.jwt_expire_in as string,
     );
 
     const { password: athletePassword, ...athleteData } =
@@ -103,7 +107,7 @@ export class AthleteAuthService {
     };
     await AthleteModel.findOneAndUpdate(
       { email },
-      { $set: { authentication } }
+      { $set: { authentication } },
     );
   }
 
@@ -115,7 +119,7 @@ export class AthleteAuthService {
   async verifyEmailToDB(payload: IVerifyEmail) {
     const { email, oneTimeCode } = payload;
     const isExistUser = await AthleteModel.findOne({ email }).select(
-      '+authentication'
+      '+authentication',
     );
     if (!isExistUser) {
       throw new ApiError(StatusCodes.BAD_REQUEST, "Athlete doesn't exist!");
@@ -124,7 +128,7 @@ export class AthleteAuthService {
     if (!oneTimeCode) {
       throw new ApiError(
         StatusCodes.BAD_REQUEST,
-        'Please give the otp, check your email we send a code'
+        'Please give the otp, check your email we send a code',
       );
     }
     console.log(oneTimeCode);
@@ -138,7 +142,7 @@ export class AthleteAuthService {
     if (date > isExistUser.authentication?.expireAt) {
       throw new ApiError(
         StatusCodes.BAD_REQUEST,
-        'Otp already expired, Please try again'
+        'Otp already expired, Please try again',
       );
     }
 
@@ -151,7 +155,7 @@ export class AthleteAuthService {
         {
           verified: true,
           authentication: { oneTimeCode: null, expireAt: null },
-        }
+        },
       );
       message = 'Email verify successfully';
     } else {
@@ -163,7 +167,7 @@ export class AthleteAuthService {
             oneTimeCode: null,
             expireAt: null,
           },
-        }
+        },
       );
 
       //create token ;
@@ -196,12 +200,12 @@ export class AthleteAuthService {
 
     //user permission check
     const isExistUser = await AthleteModel.findById(isExistToken.user).select(
-      '+authentication'
+      '+authentication',
     );
     if (!isExistUser?.authentication?.isResetPassword) {
       throw new ApiError(
         StatusCodes.UNAUTHORIZED,
-        "You don't have permission to change the password. Please click again to 'Forgot Password'"
+        "You don't have permission to change the password. Please click again to 'Forgot Password'",
       );
     }
 
@@ -210,7 +214,7 @@ export class AthleteAuthService {
     if (!isValid) {
       throw new ApiError(
         StatusCodes.BAD_REQUEST,
-        'Token expired, Please click again to the forget password'
+        'Token expired, Please click again to the forget password',
       );
     }
 
@@ -218,13 +222,13 @@ export class AthleteAuthService {
     if (newPassword !== confirmPassword) {
       throw new ApiError(
         StatusCodes.BAD_REQUEST,
-        "New password and Confirm password doesn't match!"
+        "New password and Confirm password doesn't match!",
       );
     }
 
     const hashPassword = await bcrypt.hash(
       newPassword,
-      Number(config.bcrypt_salt_rounds)
+      Number(config.bcrypt_salt_rounds),
     );
 
     const updateData = {
@@ -239,7 +243,7 @@ export class AthleteAuthService {
       updateData,
       {
         new: true,
-      }
+      },
     );
   }
 
@@ -250,7 +254,7 @@ export class AthleteAuthService {
     const { currentPassword, newPassword, confirmPassword } = payload;
 
     const isExistAthlete = await AthleteModel.findById(user.id).select(
-      '+password'
+      '+password',
     );
     if (!isExistAthlete)
       throw new ApiError(StatusCodes.BAD_REQUEST, "Athlete doesn't exist!");
@@ -259,19 +263,19 @@ export class AthleteAuthService {
       currentPassword &&
       !(await AthleteModel.isMatchPassword(
         currentPassword,
-        isExistAthlete.password
+        isExistAthlete.password,
       ))
     ) {
       throw new ApiError(
         StatusCodes.BAD_REQUEST,
-        'Current password is incorrect'
+        'Current password is incorrect',
       );
     }
 
     if (currentPassword === newPassword) {
       throw new ApiError(
         StatusCodes.BAD_REQUEST,
-        'New password must be different'
+        'New password must be different',
       );
     }
 
@@ -281,7 +285,7 @@ export class AthleteAuthService {
 
     const hashPassword = await bcrypt.hash(
       newPassword,
-      Number(config.bcrypt_salt_rounds)
+      Number(config.bcrypt_salt_rounds),
     );
 
     await AthleteModel.findByIdAndUpdate(user.id, { password: hashPassword });
@@ -318,7 +322,7 @@ export class AthleteAuthService {
     const updateDoc = await AthleteModel.findOneAndUpdate(
       { _id: athleteId },
       { $set: payload },
-      { new: true }
+      { new: true },
     );
 
     return updateDoc;
@@ -361,7 +365,7 @@ export class AthleteAuthService {
     };
     await AthleteModel.findOneAndUpdate(
       { email },
-      { $set: { authentication } }
+      { $set: { authentication } },
     );
 
     return {

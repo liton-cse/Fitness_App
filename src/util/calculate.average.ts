@@ -46,42 +46,42 @@ export function calculateNumericAverages(weeklyData: DailyTracking[]) {
     totals.activityStep += Number(item.activityStep);
 
     totals.energyAndWellBeing.energyLevel += Number(
-      item.energyAndWellBeing.energyLevel
+      item.energyAndWellBeing?.energyLevel,
     );
     totals.energyAndWellBeing.stressLevel += Number(
-      item.energyAndWellBeing.stressLevel
+      item.energyAndWellBeing?.stressLevel,
     );
     totals.energyAndWellBeing.muscelLevel += Number(
-      item.energyAndWellBeing.muscelLevel
+      item.energyAndWellBeing?.muscelLevel,
     );
-    totals.energyAndWellBeing.mood += Number(item.energyAndWellBeing.mood);
+    totals.energyAndWellBeing.mood += Number(item.energyAndWellBeing?.mood);
     totals.energyAndWellBeing.motivation += Number(
-      item.energyAndWellBeing.motivation
+      item.energyAndWellBeing?.motivation,
     );
     totals.energyAndWellBeing.bodyTemperature += Number(
-      item.energyAndWellBeing.bodyTemperature
+      item.energyAndWellBeing?.bodyTemperature,
     ); // string to number
 
-    totals.training.cardioDuration += Number(item.training.duration);
+    totals.training.cardioDuration += Number(item.training?.duration);
 
-    totals.nutrition.calories += Number(item.nutrition.calories);
-    totals.nutrition.carbs += Number(item.nutrition.carbs);
-    totals.nutrition.protein += Number(item.nutrition.protein);
-    totals.nutrition.fats += Number(item.nutrition.fats);
-    totals.nutrition.hungerLevel += Number(item.nutrition.hungerLevel);
-    totals.nutrition.digestionLevel += Number(item.nutrition.digestionLevel);
-    totals.nutrition.salt += Number(item.nutrition.salt);
+    totals.nutrition.calories += Number(item.nutrition?.calories);
+    totals.nutrition.carbs += Number(item.nutrition?.carbs);
+    totals.nutrition.protein += Number(item.nutrition?.protein);
+    totals.nutrition.fats += Number(item.nutrition?.fats);
+    totals.nutrition.hungerLevel += Number(item.nutrition?.hungerLevel);
+    totals.nutrition.digestionLevel += Number(item.nutrition?.digestionLevel);
+    totals.nutrition.salt += Number(item.nutrition?.salt);
 
-    totals.woman.pmsSymptoms += Number(item.woman.pmsSymptoms);
-    totals.woman.cramps += Number(item.woman.cramps);
+    totals.woman.pmsSymptoms += Number(item.woman?.pmsSymptoms);
+    totals.woman.cramps += Number(item.woman?.cramps);
 
-    totals.bloodPressure.systolic += Number(item.bloodPressure.systolic);
-    totals.bloodPressure.diastolic += Number(item.bloodPressure.diastolic);
+    totals.bloodPressure.systolic += Number(item.bloodPressure?.systolic);
+    totals.bloodPressure.diastolic += Number(item.bloodPressure?.diastolic);
     totals.bloodPressure.restingHeartRate += Number(
-      item.bloodPressure.restingHeartRate
+      item.bloodPressure?.restingHeartRate,
     );
     totals.bloodPressure.bloodGlucose += Number(
-      item.bloodPressure.bloodGlucose
+      item.bloodPressure?.bloodGlucose,
     );
   });
 
