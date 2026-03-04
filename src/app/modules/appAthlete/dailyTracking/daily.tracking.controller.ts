@@ -89,10 +89,12 @@ export class DailyTrackingController {
    */
   updateDailyTracking = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
-      const { id } = req.params;
-
+      const { date } = req.query as { date: string };
+      const userId = req.user.id;
+      
       const result = await dailyTrackingService.updateDailyTracking(
-        id,
+        date,
+        userId,
         req.body
       );
 

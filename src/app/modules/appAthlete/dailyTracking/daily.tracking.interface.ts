@@ -1,17 +1,23 @@
-import { Document, Types } from 'mongoose';
+
 
 // =====================
 // ENUM VALUES (RUNTIME SAFE)
 // =====================
 
-export const TRAINING_PLAN_VALUES = [
-  'PLACE_HOLDER',
-  'FULL_BODY',
-  'LEG_DAY_ADVANCED',
-  'TRAINING_PLAN_1',
-] as const;
+export const TRAINING_PLAN_VALUES: string[] = [];
 
-export const CARDIO_TYPE_VALUES = ['WALKING', 'CYCLING'] as const;
+export const CARDIO_TYPE_VALUES = [
+  'WALKING',
+  'CYCLING',
+  'RUNNING',
+  'SWIMMING',
+  'ROWING',
+  'HIKING',
+  'JUMP_ROPE',
+  'CROSSTRAINER',
+  'STAIRMASTER',
+  'OTHER',
+] as const;
 
 export const CYCLE_PHASE_VALUES = [
   'FOLLICULAR',

@@ -96,13 +96,15 @@ export class DailyTrackingService {
    * Update daily tracking by ID
    */
   async updateDailyTracking(
-    id: string,
+    date: string,
+    userId: string, 
     payload: Partial<DailyTracking>,
   ): Promise<DailyTracking | null> {
-    return DailyTrackingModel.findByIdAndUpdate(id, payload, {
+    const result = await DailyTrackingModel.findOneAndUpdate({ date, userId } , payload, {
       new: true,
       runValidators: true,
     });
+    return result;
   }
 
   /**

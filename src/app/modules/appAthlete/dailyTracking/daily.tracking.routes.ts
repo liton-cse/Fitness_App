@@ -33,7 +33,7 @@ router.get(
 router.get('/single/:id', controller.getSingleDailyTracking);
 
 router.put(
-  '/:id',
+  '/',
   auth(USER_ROLES.COACH, USER_ROLES.ATHLETE),
   controller.updateDailyTracking
 );
