@@ -41,7 +41,7 @@ const TrainingSchema = new Schema<Training>({
 const CheckInSchema = new Schema<ICheckInInfo>(
   {
     userId: { type: String, required: true },
-    coachId: { type: String },
+    coachId: { type: String ,required: true },
     currentWeight: { type: Number, required: true },
     averageWeight: { type: Number, required: true },
     questionAndAnswer: { type: [QuestionAnswerSchema], required: true },
@@ -49,7 +49,7 @@ const CheckInSchema = new Schema<ICheckInInfo>(
     nutrition: { type: NutritionSchema, required: true },
     training: { type: TrainingSchema, required: true },
     trainingFeedback: { type: String, required: true },
-    athleteNote: { type: String, required: true },
+    athleteNote: { type: String },
     coachNote: { type: String },
     image: { type: [String], default: [] },
     media: { type: [String], default: [] },

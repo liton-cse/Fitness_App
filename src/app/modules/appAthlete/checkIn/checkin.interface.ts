@@ -26,7 +26,7 @@ export interface Training {
 
 export interface ICheckInInfo {
   userId: String;
-  coachId?: string;
+  coachId: string;
   currentWeight: number;
   averageWeight: number;
   questionAndAnswer: QuestionAnswer[];

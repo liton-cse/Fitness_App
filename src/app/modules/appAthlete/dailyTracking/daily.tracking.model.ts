@@ -150,7 +150,7 @@ const DailyTrackingSchema = new Schema<DailyTracking>(
 
     dailyNotes: { type: String, required: false },
   },
-  { timestamps: false },
+  { timestamps: true },
 );
 
 DailyTrackingSchema.index({ userId: 1, date: 1 }, { unique: false });

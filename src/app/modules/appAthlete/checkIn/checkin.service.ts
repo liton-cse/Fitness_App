@@ -22,6 +22,7 @@ export class CheckInService {
     coachId: string,
   ): Promise<ICheckInInfo> {
     // 1. Create check-in first
+    console.log('Payload in service:', payload.coachId);
     const result = await CheckInModel.create(payload);
 
     // 3. Get coach notification data

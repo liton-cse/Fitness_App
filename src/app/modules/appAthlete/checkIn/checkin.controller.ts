@@ -18,9 +18,7 @@ export class CheckInController {
     async (req: Request, res: Response, next: NextFunction) => {
       const images = getMultipleFilesPath(req.files, 'image');
       const videos = getMultipleFilesPath(req.files, 'media');
-      const athlete = await AthleteModel.findById({ _id: req.user.id }).select(
-        'coachId'
-      );
+      const athlete = await AthleteModel.findById(req.user.id).select('coachId').lean();
       const payload = {
         ...req.body,
         userId: req.user.id,
