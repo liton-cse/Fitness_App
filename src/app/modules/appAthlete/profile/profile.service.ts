@@ -18,7 +18,7 @@ export class ProfileService {
       show,
     ] = await Promise.all([
       getCoachName(athlete),
-      TimelineHistoryModel.find()
+      TimelineHistoryModel.find({ userId: athleteId })
         .select('nextCheckInDate phase')
         .lean(),
       ShowManagementModel.findOne()
