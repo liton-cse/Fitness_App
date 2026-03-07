@@ -18,13 +18,12 @@ export class ProfileService {
       show,
     ] = await Promise.all([
       getCoachName(athlete),
-      TimelineHistoryModel.findOne()
+      TimelineHistoryModel.find()
         .select('nextCheckInDate phase')
         .lean(),
       ShowManagementModel.findOne()
         .sort({ createdAt: -1 })
-        .select('date')
-        .lean(),
+        .lean(),  
     ]);
 
     // 3️⃣ Countdown calculation (no DB cost)
