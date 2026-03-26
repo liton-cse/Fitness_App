@@ -1,6 +1,9 @@
+import mongoose from 'mongoose';
 import { AthleteModel } from '../../adminPanel/athlete/athleteModel';
 import { DailyTrackingModel } from '../../appAthlete/dailyTracking/daily.tracking.model';
 import { TimelineHistoryModel } from './timeline.model';
+import ApiError from '../../../../errors/ApiError';
+import { StatusCodes } from 'http-status-codes';
 
 const dayMap: Record<string, number> = {
   Sunday: 0,
@@ -41,7 +44,7 @@ const calculateConditionalAverages = (data: any[]) => {
         avgCalories: 0,
         avgActivityStep: 0,
         avgCardioPerMin: 0,
-      }
+      },
     );
 
     const count = arr.length;
@@ -78,7 +81,7 @@ export const buildTimelineHistory = async (userId: string) => {
   // ✅ Fetch only required fields (PERF)
   const allTracking = await DailyTrackingModel.find({ userId })
     .select(
-      'date weight nutrition activityStep training.trainingCompleted training.duration'
+      'date weight nutrition activityStep training.trainingCompleted training.duration',
     )
     .sort({ date: 1 })
     .lean();
@@ -148,7 +151,51 @@ export const buildTimelineHistory = async (userId: string) => {
     await TimelineHistoryModel.bulkWrite(bulkOps);
   }
 
-  return results;
+  // ✅ Fetch with IDs after bulk write to return them
+  const finalResults = await TimelineHistoryModel.find({ userId })
+    .select('_id userId phase checkInDate nextCheckInDate averages')
+    .sort({ checkInDate: 1 })
+    .lean();
+
+  return finalResults;
+};
+
+// ------------------------------------
+// Bulk update timeline phase
+// ------------------------------------
+export const bulkUpdateTimelinePhaseService = async (
+  userId: string,
+  timelineIds: string[],
+  newPhase: string,
+) => {
+  // Validate if userId is a valid ObjectId
+  if (!mongoose.Types.ObjectId.isValid(userId)) {
+    // throw new Error(`Invalid athleteId: ${userId}`);
+    throw new ApiError(StatusCodes.BAD_REQUEST, `Invalid athleteId: ${userId}`);
+  }
+
+  const bulkOps = timelineIds
+    .filter(id => mongoose.Types.ObjectId.isValid(id)) // Filter out invalid IDs
+    .map((id: string) => ({
+      updateOne: {
+        filter: {
+          _id: new mongoose.Types.ObjectId(id),
+          userId: new mongoose.Types.ObjectId(userId),
+        },
+        update: { $set: { phase: newPhase } },
+      },
+    }));
+
+  if (bulkOps.length === 0) {
+    throw new ApiError(
+      StatusCodes.BAD_REQUEST,
+      'No valid timelineIds provided',
+    );
+    // throw new Error('No valid timelineIds provided');
+  }
+
+  const result = await TimelineHistoryModel.bulkWrite(bulkOps);
+  return result;
 };
 
 // ------------------------------------
