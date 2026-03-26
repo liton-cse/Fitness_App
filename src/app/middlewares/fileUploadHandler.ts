@@ -58,56 +58,21 @@ const fileUploadHandler = () => {
 
   //file filter
   const filterFilter = (req: Request, file: any, cb: FileFilterCallback) => {
-    if (file.fieldname === 'image') {
-      if (
-        file.mimetype === 'image/jpeg' ||
-        file.mimetype === 'image/png' ||
-        file.mimetype === 'image/jpg'
-      ) {
-        cb(null, true);
-      } else {
-        cb(
-          new ApiError(
-            StatusCodes.BAD_REQUEST,
-            'Only .jpeg, .png, .jpg file supported'
-          )
-        );
-      }
-    } else if (
-      file.fieldname === 'media' ||
-      file.fieldname === 'vedio' ||
-      file.fieldname === 'video'
-    ) {
-      if (file.mimetype === 'video/mp4' || file.mimetype === 'audio/mpeg') {
-        cb(null, true);
-      } else {
-        cb(
-          new ApiError(
-            StatusCodes.BAD_REQUEST,
-            'Only .mp4, .mp3, file supported'
-          )
-        );
-      }
-    } else if (file.fieldname === 'doc') {
-      if (file.mimetype === 'application/pdf') {
-        cb(null, true);
-      } else {
-        cb(new ApiError(StatusCodes.BAD_REQUEST, 'Only pdf supported'));
-      }
-    } else {
-      cb(new ApiError(StatusCodes.BAD_REQUEST, 'This file is not supported'));
-    }
+    cb(null, true);
   };
 
   const upload = multer({
     storage: storage,
     fileFilter: filterFilter,
+    limits: {
+      fileSize: Infinity,
+    },
   }).fields([
-    { name: 'image', maxCount: 3 },
-    { name: 'media', maxCount: 3 },
-    { name: 'doc', maxCount: 3 },
-    { name: 'vedio', maxCount: 3 },
-    { name: 'video', maxCount: 3 },
+    { name: 'image', maxCount: 500 },
+    { name: 'media', maxCount: 500 },
+    { name: 'doc', maxCount: 500 },
+    { name: 'vedio', maxCount: 500 },
+    { name: 'video', maxCount: 500 },
   ]);
   return upload;
 };

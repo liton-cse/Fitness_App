@@ -12,22 +12,26 @@ const controller = new DailyTrackingController();
 router.get(
   '/notifications',
   auth(USER_ROLES.ATHLETE),
-  controller.getDailyTrackingAllNotification
-);  
+  controller.getDailyTrackingAllNotification,
+);
 
 router.get(
   '/notifications/single/:id',
   auth(USER_ROLES.ATHLETE),
-  controller.getSingleDailyTrackingPushNotification
+  controller.getSingleDailyTrackingPushNotification,
 );
 
-router.get('/by-date', auth(USER_ROLES.ATHLETE), controller.getAllDailyTrackingByDate);
+router.get(
+  '/by-date',
+  auth(USER_ROLES.ATHLETE),
+  controller.getAllDailyTrackingByDate,
+);
 
 router.post('/', auth(USER_ROLES.ATHLETE), controller.createDailyTracking);
 router.get(
   '/:userId',
   auth(USER_ROLES.ATHLETE, USER_ROLES.COACH),
-  controller.getAllDailyTracking
+  controller.getAllDailyTracking,
 );
 
 router.get('/single/:id', controller.getSingleDailyTracking);
@@ -35,22 +39,19 @@ router.get('/single/:id', controller.getSingleDailyTracking);
 router.put(
   '/',
   auth(USER_ROLES.COACH, USER_ROLES.ATHLETE),
-  controller.updateDailyTracking
+  controller.updateDailyTracking,
 );
 
 router.delete(
   '/:id',
   auth(USER_ROLES.COACH, USER_ROLES.SUPER_ADMIN),
-  controller.deleteDailyTracking
+  controller.deleteDailyTracking,
 );
 
 router.post(
   '/comment-notification/:userId',
   auth(USER_ROLES.COACH),
-  controller.createDailyTrackingCommentNotification
+  controller.createDailyTrackingCommentNotification,
 );
-
-  
-
 
 export const DailyTrackingRoutes = router;

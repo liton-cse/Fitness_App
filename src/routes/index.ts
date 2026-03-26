@@ -25,6 +25,7 @@ import { WeeklyCheckInRouter } from '../app/modules/adminPanel/weeklyCheckIn/wee
 import { PEDDatabaseInfoRouter } from '../app/modules/coachPanel/pedDatabase/ped.database.route';
 import { CoachExerciseRouter } from '../app/modules/coachPanel/coachExercise/exercise.route';
 import { WaterRoutes } from '../app/modules/appAthlete/water/water.route';
+import NotesRouter from '../app/modules/coachPanel/notes/notes.route';
 
 const router = express.Router();
 
@@ -128,7 +129,12 @@ const apiRoutes = [
   {
     path: '/water',
     route: WaterRoutes,
-  }
+  },
+
+  {
+    path: '/notes',
+    route: NotesRouter,
+  },
 ];
 
 apiRoutes.forEach(route => router.use(route.path, route.route));

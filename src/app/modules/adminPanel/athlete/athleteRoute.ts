@@ -11,37 +11,43 @@ router.post(
   '/',
   auth(USER_ROLES.SUPER_ADMIN, USER_ROLES.COACH),
   fileUploadHandler(),
-  controller.create
+  controller.create,
 );
 
 router.get(
   '/',
   auth(USER_ROLES.SUPER_ADMIN, USER_ROLES.COACH, USER_ROLES.ATHLETE),
-  controller.getAll
+  controller.getAll,
+);
+
+router.get(
+  '/single/:id',
+  // auth(USER_ROLES.SUPER_ADMIN, USER_ROLES.COACH),
+  controller.getSingleProfile,
 );
 router.get('/coachId', auth(USER_ROLES.COACH), controller.getAllByCoach);
 router.get(
   '/:id',
   auth(USER_ROLES.SUPER_ADMIN, USER_ROLES.COACH, USER_ROLES.ATHLETE),
-  controller.getOne
+  controller.getOne,
 );
 router.put(
   '/:id',
   auth(USER_ROLES.SUPER_ADMIN, USER_ROLES.COACH),
   fileUploadHandler(),
-  controller.update
+  controller.update,
 );
 router.delete(
   '/:id',
   auth(USER_ROLES.SUPER_ADMIN, USER_ROLES.COACH),
-  controller.delete
+  controller.delete,
 );
 
 // Athlete check-in
 router.put(
   '/check-in/:id',
   auth(USER_ROLES.COACH, USER_ROLES.ATHLETE),
-  controller.checkIn
+  controller.checkIn,
 );
 
 // Active / In-Active update on log in and log out.
@@ -52,12 +58,12 @@ router
   .route('/profile')
   .get(
     auth(USER_ROLES.SUPER_ADMIN, USER_ROLES.COACH),
-    controller.getAthleteProfile
+    controller.getAthleteProfile,
   )
   .patch(
     auth(USER_ROLES.SUPER_ADMIN, USER_ROLES.SUPER_ADMIN, USER_ROLES.COACH),
     fileUploadHandler(),
-    controller.updateProfile
+    controller.updateProfile,
   );
 
 export const AthleteRouter = router;

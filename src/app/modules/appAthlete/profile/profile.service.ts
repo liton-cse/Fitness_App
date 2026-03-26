@@ -1,4 +1,3 @@
-
 import { AthleteModel } from '../../adminPanel/athlete/athleteModel';
 import { CoachModel } from '../../adminPanel/coach/coachModel';
 import { ShowManagementModel } from '../../coachPanel/showManagement/management.model';
@@ -8,34 +7,35 @@ import { User } from '../../user/user.model';
 export class ProfileService {
   static async getAthleteDetails(athleteId: string) {
     //Fetch athlete first (must exist)
-    const athlete = await AthleteModel.findById(athleteId).lean();
+    const athlete = await AthleteModel.findById(athleteId)
+      .populate('shows')
+      .lean();
     if (!athlete) throw new Error('Athlete not found');
 
     //Run independent queries in parallel
-    const [
-      coachName,
-      timeline,
-      show,
-    ] = await Promise.all([
+    const [coachName, timeline, show] = await Promise.all([
       getCoachName(athlete),
       TimelineHistoryModel.find({ userId: athleteId })
         .select('nextCheckInDate phase')
         .lean(),
-      ShowManagementModel.findOne()
-        .sort({ createdAt: -1 })
-        .lean(),  
+      ShowManagementModel.findOne().sort({ createdAt: -1 }).lean(),
     ]);
 
     // 3️⃣ Countdown calculation (no DB cost)
-    const countDown = show?.date
-      ? calculateCountdown(show.date)
-      : 0;
+    const countDown = show?.date ? calculateCountdown(show.date) : 0;
+
+    const allShows = athlete?.shows?.map((show: any) => {
+      return {
+        ...show,
+        countDown: calculateCountdown(show.date),
+      };
+    });
 
     return {
       athlete,
+      shows: allShows,
       coachName,
       timeline,
-      show,
       countDown,
     };
   }
@@ -49,9 +49,7 @@ const getCoachName = async (athlete: any): Promise<string> => {
     return coach?.name || '';
   }
 
-  const user = await User.findById(athlete._id)
-    .select('name')
-    .lean();
+  const user = await User.findById(athlete._id).select('name').lean();
   return user?.name || '';
 };
 

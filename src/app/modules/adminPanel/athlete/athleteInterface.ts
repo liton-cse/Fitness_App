@@ -27,6 +27,7 @@ export interface IAthlete {
   isActive: 'Active' | 'In-Active';
   lastActive?: Date;
   notifiedThisWeek: boolean;
+  shows?: Types.ObjectId[];
   authentication?: {
     isResetPassword: boolean;
     oneTimeCode: number;

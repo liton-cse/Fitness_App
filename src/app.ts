@@ -22,8 +22,8 @@ app.use(
     ],
   }),
 );
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '500mb' }));
+app.use(express.urlencoded({ extended: true, limit: '500mb' }));
 
 //file retrieve
 app.use(express.static('uploads'));

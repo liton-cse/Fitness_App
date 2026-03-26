@@ -3,6 +3,7 @@ import { StatusCodes } from 'http-status-codes';
 import catchAsync from '../../../../shared/catchAsync';
 import sendResponse from '../../../../shared/sendResponse';
 import { ShowManagementService } from './management.service';
+import ApiError from '../../../../errors/ApiError';
 
 const showService = new ShowManagementService();
 
@@ -21,7 +22,7 @@ export class ShowManagementController {
         message: 'Show created successfully',
         data: result,
       });
-    }
+    },
   );
 
   /**
@@ -38,7 +39,7 @@ export class ShowManagementController {
         message: 'Shows retrieved successfully',
         data: result,
       });
-    }
+    },
   );
 
   /**
@@ -55,7 +56,7 @@ export class ShowManagementController {
         message: 'Show retrieved successfully',
         data: result,
       });
-    }
+    },
   );
 
   /**
@@ -72,7 +73,7 @@ export class ShowManagementController {
         message: 'Show updated successfully',
         data: result,
       });
-    }
+    },
   );
 
   /**
@@ -89,6 +90,25 @@ export class ShowManagementController {
         message: 'Show deleted successfully',
         data: result,
       });
-    }
+    },
+  );
+
+  assignShow = catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const { showId, userIds } = req.body;
+
+      if (!showId || !userIds) {
+        throw new ApiError(StatusCodes.BAD_REQUEST, 'showId and userIds are required');
+      }
+
+      const result = await showService.assignShow({ showId, userIds });
+
+      sendResponse(res, {
+        success: true,
+        statusCode: StatusCodes.OK,
+        message: 'Show assigned successfully',
+        data: result,
+      });
+    },
   );
 }

@@ -33,7 +33,7 @@ export class AthleteController {
         message: 'Athlete created successfully',
         data: result,
       });
-    }
+    },
   );
 
   getAll = catchAsync(
@@ -45,7 +45,20 @@ export class AthleteController {
         message: 'All athletes fetched successfully',
         data: result,
       });
-    }
+    },
+  );
+  getSingleProfile = catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const result = await athleteService.getSingleProfile(
+        req.params.id as string,
+      );
+      sendResponse(res, {
+        success: true,
+        statusCode: StatusCodes.OK,
+        message: 'Profile data retrieved successfully',
+        data: result,
+      });
+    },
   );
 
   getAllByCoach = catchAsync(
@@ -58,7 +71,7 @@ export class AthleteController {
         message: 'All athletes fetched successfully',
         data: result,
       });
-    }
+    },
   );
 
   getOne = catchAsync(
@@ -71,7 +84,7 @@ export class AthleteController {
         message: 'Single athlete fetched successfully',
         data: result,
       });
-    }
+    },
   );
 
   update = catchAsync(
@@ -88,7 +101,7 @@ export class AthleteController {
         message: 'Athlete updated successfully',
         data: result,
       });
-    }
+    },
   );
   // delete athlete
   delete = catchAsync(
@@ -101,7 +114,7 @@ export class AthleteController {
         message: 'Athlete deleted successfully',
         data: result,
       });
-    }
+    },
   );
 
   //update check in date
@@ -115,7 +128,7 @@ export class AthleteController {
         message: 'Check-in updated successfully',
         data: result,
       });
-    }
+    },
   );
 
   //Update the athlete status..
@@ -129,7 +142,7 @@ export class AthleteController {
         message: 'Athlete status updated successfully',
         data: result,
       });
-    }
+    },
   );
 
   //get athlete profile from db...
@@ -162,6 +175,6 @@ export class AthleteController {
         message: 'Profile updated successfully',
         data: result,
       });
-    }
+    },
   );
 }

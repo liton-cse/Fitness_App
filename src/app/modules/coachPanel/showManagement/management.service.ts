@@ -1,5 +1,9 @@
+import { StatusCodes } from 'http-status-codes';
+import { Types } from 'mongoose';
 import { IShowManagement } from './management.interface';
 import { ShowManagementModel } from './management.model';
+import ApiError from '../../../../errors/ApiError';
+import { AthleteModel } from '../../adminPanel/athlete/athleteModel';
 
 export class ShowManagementService {
   /**
@@ -41,7 +45,7 @@ export class ShowManagementService {
     const updatedShow = await ShowManagementModel.findByIdAndUpdate(
       id,
       { $set: payload },
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     );
     return updatedShow;
   }
@@ -54,5 +58,40 @@ export class ShowManagementService {
   async deleteShow(id: string) {
     const deletedShow = await ShowManagementModel.findByIdAndDelete(id);
     return deletedShow;
+  }
+
+  async assignShow(payload: { showId: string; userIds: string | string[] }) {
+    let { showId, userIds } = payload;
+
+    // Convert single userId to array
+    const userIdsArray = Array.isArray(userIds) ? userIds : [userIds];
+
+    // Explicitly cast to ObjectId
+    const showObjectId = new Types.ObjectId(showId);
+    const userObjectIds = userIdsArray.map(id => new Types.ObjectId(id));
+
+    const showExists = await ShowManagementModel.exists({ _id: showObjectId });
+
+    if (!showExists) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'Show not found');
+    }
+
+    const updatedUsers = await AthleteModel.updateMany(
+      { _id: { $in: userObjectIds } },
+      { $addToSet: { shows: showObjectId } },
+    );
+
+    if (updatedUsers.matchedCount === 0) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'No athletes found with the provided IDs');
+    }
+
+    if (updatedUsers.modifiedCount === 0) {
+      // If it's a single user, it's likely already assigned
+      if (userObjectIds.length === 1) {
+        throw new ApiError(StatusCodes.BAD_REQUEST, 'Show already assigned to this athlete');
+      }
+    }
+
+    return { updatedUsers, message: 'Show assigned successfully' };
   }
 }

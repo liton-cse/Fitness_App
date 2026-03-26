@@ -43,7 +43,7 @@ export class AthleteService {
     return await AthleteModel.findByIdAndUpdate(
       id,
       { lastCheckIn: new Date() },
-      { new: true }
+      { new: true },
     );
   }
 
@@ -54,7 +54,7 @@ export class AthleteService {
         isActive: 'In-Active',
         lastActive: new Date(),
       },
-      { new: true }
+      { new: true },
     );
   }
 
@@ -65,13 +65,14 @@ export class AthleteService {
         isActive: 'Active',
         lastActive: new Date(),
       },
-      { new: true }
+      { new: true },
     );
   }
 
   async getUserProfileFromDB(user: JwtPayload): Promise<Partial<IAthlete>> {
     const { id } = user;
-    const isExistAthlete = await AthleteModel.isExistAthleteById(id);
+    const isExistAthlete =
+      await AthleteModel.isExistAthleteById(id).populate('shows');
     if (!isExistAthlete) {
       throw new ApiError(StatusCodes.BAD_REQUEST, "User doesn't exist!");
     }
@@ -81,7 +82,7 @@ export class AthleteService {
 
   updateProfileToDB = async (
     user: JwtPayload,
-    payload: Partial<IAthlete>
+    payload: Partial<IAthlete>,
   ): Promise<Partial<IAthlete | null>> => {
     const { id } = user;
     const isExistUser = await AthleteModel.isExistAthleteById(id);
@@ -99,9 +100,19 @@ export class AthleteService {
       payload,
       {
         new: true,
-      }
+      },
     );
 
     return updateDoc;
   };
+
+  async getSingleProfile(id: string) {
+    const athlete = await AthleteModel.findById(id)
+      .select('-password -authentication')
+      .lean()
+      .populate('shows');
+    if (!athlete)
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Athlete not found');
+    return athlete;
+  }
 }

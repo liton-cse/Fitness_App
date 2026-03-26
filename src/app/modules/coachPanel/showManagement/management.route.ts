@@ -10,19 +10,25 @@ const showController = new ShowManagementController();
 router.post(
   '/',
   auth(USER_ROLES.SUPER_ADMIN, USER_ROLES.COACH),
-  showController.addShow
+  showController.addShow,
 );
 router.get('/', showController.getAllShows);
+
 router.get('/:id', showController.getShowById);
 router.put(
   '/:id',
   auth(USER_ROLES.SUPER_ADMIN, USER_ROLES.COACH),
-  showController.updateShow
+  showController.updateShow,
 );
 router.delete(
   '/:id',
   auth(USER_ROLES.SUPER_ADMIN, USER_ROLES.COACH),
-  showController.deleteShow
+  showController.deleteShow,
+);
+router.post(
+  '/show-assign',
+  // auth(USER_ROLES.SUPER_ADMIN, USER_ROLES.COACH),
+  showController.assignShow,
 );
 
 export const ShowManagementRoutes = router;
