@@ -168,6 +168,7 @@ export class CheckInService {
     const updateData = {
       coachId,
       ...payload,
+      checkinCompleted: 'Completed',
     };
 
     // ✅ Run DB calls in parallel

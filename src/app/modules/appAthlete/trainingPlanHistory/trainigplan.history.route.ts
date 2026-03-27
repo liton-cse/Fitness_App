@@ -12,7 +12,7 @@ const controller = new TrainingPushDayHistoryController();
 router.post(
   '/',
   auth(USER_ROLES.ATHLETE, USER_ROLES.COACH, USER_ROLES.SUPER_ADMIN),
-  controller.addTrainingPushDayHistory
+  controller.addTrainingPushDayHistory,
 );
 
 /**
@@ -21,7 +21,13 @@ router.post(
 router.get(
   '/',
   auth(USER_ROLES.ATHLETE, USER_ROLES.COACH, USER_ROLES.SUPER_ADMIN),
-  controller.getTrainingPushDayHistory
+  controller.getTrainingPushDayHistory,
+);
+
+router.get(
+  '/:userId',
+  auth(USER_ROLES.COACH, USER_ROLES.SUPER_ADMIN),
+  controller.getTrainingPushDayHistoryById,
 );
 
 /**
@@ -30,7 +36,7 @@ router.get(
 router.patch(
   '/:id',
   auth(USER_ROLES.ATHLETE, USER_ROLES.COACH, USER_ROLES.SUPER_ADMIN),
-  controller.updateTrainingPushDayHistory
+  controller.updateTrainingPushDayHistory,
 );
 
 /**
@@ -39,7 +45,7 @@ router.patch(
 router.delete(
   '/:id',
   auth(USER_ROLES.ATHLETE, USER_ROLES.COACH, USER_ROLES.SUPER_ADMIN),
-  controller.deleteTrainingPushDayHistory
+  controller.deleteTrainingPushDayHistory,
 );
 
 export const TrainingPushDayHistoryRoutes = router;

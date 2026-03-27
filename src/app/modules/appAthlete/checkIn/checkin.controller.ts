@@ -18,7 +18,9 @@ export class CheckInController {
     async (req: Request, res: Response, next: NextFunction) => {
       const images = getMultipleFilesPath(req.files, 'image');
       const videos = getMultipleFilesPath(req.files, 'media');
-      const athlete = await AthleteModel.findById(req.user.id).select('coachId').lean();
+      const athlete = await AthleteModel.findById(req.user.id)
+        .select('coachId')
+        .lean();
       const payload = {
         ...req.body,
         userId: req.user.id,
@@ -28,7 +30,7 @@ export class CheckInController {
       };
       const result = await checkInService.createCheckIn(
         payload,
-        payload.coachId
+        payload.coachId,
       );
 
       sendResponse(res, {
@@ -37,7 +39,7 @@ export class CheckInController {
         message: 'Check-in created successfully',
         data: result,
       });
-    }
+    },
   );
 
   /**
@@ -57,7 +59,7 @@ export class CheckInController {
         message: 'Fetched all check-ins successfully',
         data: result,
       });
-    }
+    },
   );
 
   /**
@@ -74,7 +76,7 @@ export class CheckInController {
         coachId,
         userId,
         page,
-        limit
+        limit,
       );
 
       sendResponse(res, {
@@ -83,7 +85,7 @@ export class CheckInController {
         message: 'Fetched all check-ins successfully',
         data: result,
       });
-    }
+    },
   );
 
   /**
@@ -136,7 +138,7 @@ export class CheckInController {
         message: 'Fetched check-in successfully',
         data: result,
       });
-    }
+    },
   );
 
   /**
@@ -154,7 +156,7 @@ export class CheckInController {
         message: 'Check-in updated successfully',
         data: result,
       });
-    }
+    },
   );
 
   /**
@@ -172,7 +174,7 @@ export class CheckInController {
         message: 'Check-in deleted successfully',
         data: result,
       });
-    }
+    },
   );
 
   /**
@@ -188,9 +190,9 @@ export class CheckInController {
       sendResponse(res, {
         success: true,
         statusCode: StatusCodes.OK,
-        message: 'Check-in deleted successfully',
+        message: 'Check-in completed successfully',
         data: result,
       });
-    }
+    },
   );
 }

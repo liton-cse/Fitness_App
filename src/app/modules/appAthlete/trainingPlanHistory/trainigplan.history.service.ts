@@ -8,7 +8,6 @@ export const calculateOneRM = (weight: number, reps: number) => {
   return Number((weight * (1 + reps / 30)).toFixed(2));
 };
 
-
 export const calculateTotalVolume = (pushData: any[]) => {
   return pushData.reduce((total, set) => {
     const weight = Number(set.weight);
@@ -23,7 +22,7 @@ export const calculateTotalVolume = (pushData: any[]) => {
 
 function calculateVolumePR(previousHistories: any[], currentVolume: number) {
   const previousVolumes = previousHistories.map(h =>
-    calculateTotalVolume(h.pushData)
+    calculateTotalVolume(h.pushData),
   );
 
   const maxPreviousVolume = Math.max(...previousVolumes, 0);
@@ -68,22 +67,21 @@ export class TrainingPushDayHistoryService {
       };
     }
 
-      const enrichedHistories = histories.map(history => {
-        const totalWeight = calculateTotalVolume(history.pushData);
+    const enrichedHistories = histories.map(history => {
+      const totalWeight = calculateTotalVolume(history.pushData);
 
-        return {
-          ...history,
-          totalWeight,
-          pushData: history.pushData.map(set => ({
-            ...set,
-            oneRM: calculateOneRM(
-              Number(set.weight),
-              Number(set.repRange) // 🔥 correct field
-            ),
-          })),
-        };
-      });
-
+      return {
+        ...history,
+        totalWeight,
+        pushData: history.pushData.map(set => ({
+          ...set,
+          oneRM: calculateOneRM(
+            Number(set.weight),
+            Number(set.repRange), // 🔥 correct field
+          ),
+        })),
+      };
+    });
 
     // 🟢 PR CHECK (only last workout)
     const currentHistory = enrichedHistories[enrichedHistories.length - 1];
@@ -91,7 +89,7 @@ export class TrainingPushDayHistoryService {
 
     const volumePR = calculateVolumePR(
       previousHistories,
-      currentHistory.totalWeight
+      currentHistory.totalWeight,
     );
 
     return {
@@ -103,17 +101,26 @@ export class TrainingPushDayHistoryService {
   }
 
   /**
+   * Get Training Push Day History by ID
+   */
+  async getTrainingPushDayHistoryById(userId: string) {
+    const result = await TrainingPushDayHistoryModel.find({ userId });
+
+    return result;
+  }
+
+  /**
    * Update a Training Push Day History record by ID
    */
   async updateTrainingPushDayHistory(
     userId: string,
     id: string,
-    payload: Partial<ITrainingPushDayHistory>
+    payload: Partial<ITrainingPushDayHistory>,
   ) {
     const result = await TrainingPushDayHistoryModel.findOneAndUpdate(
       { _id: id, userId },
       payload,
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     );
     return result;
   }

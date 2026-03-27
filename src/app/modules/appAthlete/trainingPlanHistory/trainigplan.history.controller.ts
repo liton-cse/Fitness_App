@@ -18,7 +18,7 @@ export class TrainingPushDayHistoryController {
 
       const result =
         await trainingPushDayHistoryService.createTrainingPushDayHistory(
-          payload
+          payload,
         );
 
       sendResponse(res, {
@@ -27,7 +27,7 @@ export class TrainingPushDayHistoryController {
         message: 'Training push day history created successfully',
         data: result,
       });
-    }
+    },
   );
 
   /**
@@ -42,7 +42,7 @@ export class TrainingPushDayHistoryController {
       const result =
         await trainingPushDayHistoryService.getTrainingPushDayHistory(
           userId,
-          trainingName as string
+          trainingName as string,
         );
 
       sendResponse(res, {
@@ -51,7 +51,27 @@ export class TrainingPushDayHistoryController {
         message: 'Training push day history retrieved successfully',
         data: result,
       });
-    }
+    },
+  );
+
+  getTrainingPushDayHistoryById = catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      // const userId = req.user.id;
+      const userId = req.params.userId;
+
+      const result =
+        await trainingPushDayHistoryService.getTrainingPushDayHistoryById(
+          userId,
+          // id,
+        );
+
+      sendResponse(res, {
+        success: true,
+        statusCode: StatusCodes.OK,
+        message: 'Training push day history retrieved successfully',
+        data: result,
+      });
+    },
   );
 
   /**
@@ -66,7 +86,7 @@ export class TrainingPushDayHistoryController {
         await trainingPushDayHistoryService.updateTrainingPushDayHistory(
           userId,
           id,
-          req.body
+          req.body,
         );
 
       sendResponse(res, {
@@ -75,7 +95,7 @@ export class TrainingPushDayHistoryController {
         message: 'Training push day history updated successfully',
         data: result,
       });
-    }
+    },
   );
 
   /**
@@ -90,7 +110,7 @@ export class TrainingPushDayHistoryController {
       const result =
         await trainingPushDayHistoryService.deleteTrainingPushDayHistory(
           userId,
-          id
+          id,
         );
 
       sendResponse(res, {
@@ -99,6 +119,6 @@ export class TrainingPushDayHistoryController {
         message: 'Training push day history deleted successfully',
         data: result,
       });
-    }
+    },
   );
 }
