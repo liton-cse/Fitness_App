@@ -23,6 +23,10 @@ const athleteSchema = new Schema<IAthlete, AthleteType>(
       unique: true,
       lowercase: true,
     },
+    dateOfBirth: {
+      type: String,
+      required: true,
+    },
     password: {
       type: String,
       required: true,

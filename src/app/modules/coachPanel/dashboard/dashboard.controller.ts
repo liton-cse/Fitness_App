@@ -21,6 +21,18 @@ export class CoachDashboardController {
         message: 'Check-in created successfully',
         data: result,
       });
-    }
+    },
+  );
+  getWeeklyCheckins = catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const coachId = req.user.id;
+      const result = await coachDashboardServiice.getWeeklyCheckins(coachId);
+      sendResponse(res, {
+        success: true,
+        statusCode: StatusCodes.CREATED,
+        message: 'Weekly checkins retrieved successfully',
+        data: result,
+      });
+    },
   );
 }

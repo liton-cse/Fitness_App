@@ -5,6 +5,7 @@ export interface IAthlete {
   _id: Types.ObjectId;
   coachId: string;
   name: string;
+  dateOfBirth: string;
   email: string;
   role: USER_ROLES;
   password: string;

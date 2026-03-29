@@ -32,7 +32,13 @@ export class AthleteService {
   }
 
   async updateAthlete(id: string, data: Partial<IAthlete>) {
-    return await AthleteModel.findByIdAndUpdate(id, data, { new: true });
+    // return
+    // console.log(id);
+    const updateDoc = await AthleteModel.findByIdAndUpdate({ _id: id }, data, {
+      new: true,
+    });
+    // console.log(updateDoc);
+    return updateDoc;
   }
 
   async deleteAthlete(id: string) {

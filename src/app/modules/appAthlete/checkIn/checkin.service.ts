@@ -48,6 +48,14 @@ export class CheckInService {
       .lean();
     return oldData;
   }
+
+  async getCoachOldCheckInData(athleteId: string, value: number | 1) {
+    const oldData = await CheckInModel.findOne({ userId: athleteId })
+      .sort({ createdAt: -1 })
+      .skip(value)
+      .lean();
+    return oldData;
+  }
   /**
    * Get all Check-in records for a user
    * @param userId - User ID
@@ -168,7 +176,7 @@ export class CheckInService {
     const updateData = {
       coachId,
       ...payload,
-      checkinCompleted: 'Completed',
+      // checkinCompleted: 'Completed',
     };
 
     // ✅ Run DB calls in parallel
@@ -188,6 +196,7 @@ export class CheckInService {
     const CoachName = coach?.name;
     const CoachEmail = coach?.email;
     // ✅ Safe optional chaining (fix TS + runtime crash)
+    console.log(notification);
     if (notification?.fcmToken) {
       const title = `Check-in Completed by ${CoachName}`;
       const description = `Your check-in data are so great. So you carry on. If you want to know any information. Please check: ${CoachEmail}`;

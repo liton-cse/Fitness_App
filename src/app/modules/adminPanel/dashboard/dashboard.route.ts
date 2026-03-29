@@ -10,12 +10,17 @@ const dashboardController = new CoachDashboardController();
 router.get(
   '/admin',
   auth(USER_ROLES.SUPER_ADMIN, USER_ROLES.COACH),
-  controller.dashboardInfo
+  controller.dashboardInfo,
 );
 router.get('/alert', controller.dashboardAlert);
 router.get(
   '/coach',
   auth(USER_ROLES.COACH),
-  dashboardController.getCoachDashboardStats
+  dashboardController.getCoachDashboardStats,
+);
+router.get(
+  '/weekly-checkins',
+  auth(USER_ROLES.COACH),
+  dashboardController.getWeeklyCheckins,
 );
 export const DashboardRouter = router;

@@ -47,6 +47,14 @@ export class CoachDashboardService {
       }),
     ]);
 
+    console.log(
+      totalAthletes,
+      totalActiveUsers,
+      totalCompletedCheckin,
+      totalPendingCheckin,
+      totalDailyTrackingToday,
+    );
+
     return {
       totalAthletes,
       totalActiveUsers,
@@ -56,6 +64,36 @@ export class CoachDashboardService {
       },
       dailyTracking: {
         submittedToday: totalDailyTrackingToday,
+      },
+    };
+  }
+  async getWeeklyCheckins(coachId: string) {
+    // 📅 Start & End of week
+    const startOfWeek = new Date();
+    startOfWeek.setHours(0, 0, 0, 0);
+
+    const endOfWeek = new Date();
+    endOfWeek.setHours(23, 59, 59, 999);
+
+    // 🚀 Run all queries in parallel
+    const [totalCompletedCheckin, totalPendingCheckin] = await Promise.all([
+      // Completed checkins
+      CheckInModel.countDocuments({
+        coachId,
+        checkinCompleted: 'Completed',
+      }),
+
+      // Pending checkins
+      CheckInModel.countDocuments({
+        coachId,
+        checkinCompleted: 'Pending',
+      }),
+    ]);
+
+    return {
+      weeklyCheckins: {
+        completed: totalCompletedCheckin,
+        pending: totalPendingCheckin,
       },
     };
   }

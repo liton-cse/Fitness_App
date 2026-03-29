@@ -7,6 +7,7 @@ import {
   getSingleFilePath,
   normalizeAthleteInput,
 } from '../../../../shared/getFilePath';
+import calculateAgeFlexible from '../../../../helpers/calculateAgeFlexible';
 
 const athleteService = new AthleteService();
 
@@ -16,12 +17,17 @@ export class AthleteController {
       let image = getSingleFilePath(req.files, 'image');
 
       const coachId = req.user.role === 'COACH' ? req.user.id : '';
+      const reqData = req.body;
+      const { dateOfBirth } = reqData;
+      const age = calculateAgeFlexible(dateOfBirth);
 
       const password = '123456789';
       const data = {
         coachId,
-        ...req.body,
+        ...reqData,
         password,
+        dateOfBirth,
+        age,
         image,
       };
       console.log(data);
@@ -94,6 +100,7 @@ export class AthleteController {
         ...req.body,
         image,
       };
+
       const result = await athleteService.updateAthlete(req.params.id, data);
       sendResponse(res, {
         success: true,

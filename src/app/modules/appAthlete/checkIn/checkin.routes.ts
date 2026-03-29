@@ -12,27 +12,33 @@ router.post(
   '/',
   auth(USER_ROLES.ATHLETE, USER_ROLES.COACH),
   fileUploadHandler(),
-  controller.createCheckIn
+  controller.createCheckIn,
 );
 
 // Get all Check-ins for the logged-in user
 router.get(
   '/',
   auth(USER_ROLES.ATHLETE, USER_ROLES.SUPER_ADMIN, USER_ROLES.COACH),
-  controller.getAllCheckIns
+  controller.getAllCheckIns,
 );
 router.get(
   '/date',
   auth(USER_ROLES.ATHLETE, USER_ROLES.SUPER_ADMIN),
-  controller.getNextCheckInDate
+  controller.getNextCheckInDate,
 );
 
 router.get('/old-data', auth(USER_ROLES.ATHLETE), controller.getOldCheckInData);
 
 router.get(
+  '/old-data/coach/:athleteId',
+  // auth(USER_ROLES.COACH, USER_ROLES.ATHLETE, USER_ROLES.SUPER_ADMIN),
+  controller.getCoachOldCheckInData,
+);
+
+router.get(
   '/latest/:userId',
-  auth(USER_ROLES.COACH, USER_ROLES.ATHLETE),
-  controller.getLatestCheckIns
+  auth(USER_ROLES.COACH, USER_ROLES.ATHLETE, USER_ROLES.SUPER_ADMIN),
+  controller.getLatestCheckIns,
 );
 
 // Get a single Check-in by ID
@@ -44,7 +50,7 @@ router.patch('/:id', auth(USER_ROLES.COACH), controller.updateCheckIn);
 router.patch(
   '/status/:athleteId',
   auth(USER_ROLES.COACH),
-  controller.UpdateCheckInStatus
+  controller.UpdateCheckInStatus,
 );
 
 // Delete a Check-in by ID

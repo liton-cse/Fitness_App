@@ -105,6 +105,24 @@ export class CheckInController {
     });
   });
 
+  getCoachOldCheckInData = catchAsync(async (req: Request, res: Response) => {
+    const athleteId = req.params.athleteId;
+    console.log(athleteId);
+    const skip = req.query.skip;
+
+    const result = await checkInService.getCoachOldCheckInData(
+      athleteId,
+      Number(skip),
+    );
+
+    sendResponse(res, {
+      success: true,
+      statusCode: StatusCodes.OK,
+      message: 'Old data fetch successfully',
+      data: result,
+    });
+  });
+
   /**
    * Returns next check-in date based on athlete's check-in day
    */
