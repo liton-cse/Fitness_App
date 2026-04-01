@@ -123,6 +123,25 @@ export class CheckInController {
     });
   });
 
+  updateCoachOldCheckInData = catchAsync(
+    async (req: Request, res: Response) => {
+      const athleteId = req.params.checkinId;
+      const body = req.body;
+
+      const result = await checkInService.updateCoachOldCheckInDataService(
+        athleteId,
+        body,
+      );
+
+      sendResponse(res, {
+        success: true,
+        statusCode: StatusCodes.OK,
+        message: 'Old data fetch successfully',
+        data: result,
+      });
+    },
+  );
+
   /**
    * Returns next check-in date based on athlete's check-in day
    */
@@ -158,6 +177,17 @@ export class CheckInController {
       });
     },
   );
+
+  getCheckInsByUserId = catchAsync(async (req: Request, res: Response) => {
+    const userId = req.params.userId;
+    const result = await checkInService.getCheckInsByUserIdService(userId);
+    sendResponse(res, {
+      success: true,
+      statusCode: StatusCodes.OK,
+      message: 'Check-ins fetched successfully',
+      data: result,
+    });
+  });
 
   /**
    * Update a Check-in by ID
@@ -213,4 +243,49 @@ export class CheckInController {
       });
     },
   );
+  /**
+   * Get current active questions for the athlete
+   * GET /api/v1/checkin/questions
+   */
+  getCheckInQuestions = catchAsync(async (req: Request, res: Response) => {
+    const userId = req.user.id;
+    const result = await checkInService.getAthleteQuestions(userId);
+
+    sendResponse(res, {
+      success: true,
+      statusCode: StatusCodes.OK,
+      message: 'Questions fetched successfully',
+      data: result,
+    });
+  });
+
+  /**
+   * Update working set of questions
+   * PATCH /api/v1/checkin/questions/:athleteId
+   */
+  updateCheckInQuestions = catchAsync(async (req: Request, res: Response) => {
+    const athleteId = req.params.athleteId;
+    const questions = req.body.questions || req.body;
+    const slider = req.body.slider;
+
+    // Fetch athlete to get their coachId
+    const athlete = await AthleteModel.findById(athleteId).lean();
+    if (!athlete) {
+      throw new Error('Athlete not found');
+    }
+
+    const result = await checkInService.updateAthleteQuestions(
+      athleteId,
+      athlete.coachId,
+      slider,
+      questions,
+    );
+
+    sendResponse(res, {
+      success: true,
+      statusCode: StatusCodes.OK,
+      message: 'Questions updated successfully',
+      data: result,
+    });
+  });
 }

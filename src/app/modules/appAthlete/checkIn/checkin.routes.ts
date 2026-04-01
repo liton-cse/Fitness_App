@@ -6,6 +6,11 @@ import fileUploadHandler from '../../../middlewares/fileUploadHandler';
 
 const router = Router();
 const controller = new CheckInController();
+router.patch(
+  '/old-data/coach/:checkinId',
+  // auth(USER_ROLES.COACH, USER_ROLES.ATHLETE, USER_ROLES.SUPER_ADMIN),
+  controller.updateCoachOldCheckInData,
+);
 
 // Create a new Check-in
 router.post(
@@ -27,6 +32,20 @@ router.get(
   controller.getNextCheckInDate,
 );
 
+// Get current working set of questions
+router.get(
+  '/questions',
+  auth(USER_ROLES.ATHLETE, USER_ROLES.COACH),
+  controller.getCheckInQuestions,
+);
+
+// Update working set of questions
+router.patch(
+  '/questions/:athleteId',
+  auth(USER_ROLES.COACH, USER_ROLES.ATHLETE),
+  controller.updateCheckInQuestions,
+);
+
 router.get('/old-data', auth(USER_ROLES.ATHLETE), controller.getOldCheckInData);
 
 router.get(
@@ -43,6 +62,13 @@ router.get(
 
 // Get a single Check-in by ID
 router.get('/:id', controller.getCheckInById);
+
+router
+  .route('/user/:userId')
+  .get(
+    auth(USER_ROLES.COACH, USER_ROLES.ATHLETE, USER_ROLES.SUPER_ADMIN),
+    controller.getCheckInsByUserId,
+  );
 
 // Update a Check-in by ID
 router.patch('/:id', auth(USER_ROLES.COACH), controller.updateCheckIn);

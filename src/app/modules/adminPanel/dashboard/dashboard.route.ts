@@ -23,4 +23,5 @@ router.get(
   auth(USER_ROLES.COACH),
   dashboardController.getWeeklyCheckins,
 );
+
 export const DashboardRouter = router;
