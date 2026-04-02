@@ -17,6 +17,7 @@ export class DailyTrackingController {
         userId: req.user.id,
         mealNumber: req.body.mealNumber,
         food: req.body.food,
+        date: req.body.date,
       };
 
       const result = await dailyTrackingService.createDailyTracking(payload);
@@ -27,21 +28,19 @@ export class DailyTrackingController {
         message: 'Daily tracking created successfully',
         data: result,
       });
-    }
+    },
   );
 
-    addDailyTracking = catchAsync(
+  addDailyTracking = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
-    
-        const userId = req.user.id;
-        const mealId = req.params.id;
-        const food = req.body;
-
+      const userId = req.user.id;
+      const mealId = req.params.id;
+      const food = req.body;
 
       const result = await dailyTrackingService.addDailyTrackingService({
         userId,
         mealId,
-        food
+        food,
       });
 
       sendResponse(res, {
@@ -50,9 +49,8 @@ export class DailyTrackingController {
         message: 'Daily tracking updated successfully',
         data: result,
       });
-    }
+    },
   );
-
 
   /**
    * Get daily tracking (search by date optional)
@@ -63,7 +61,7 @@ export class DailyTrackingController {
 
     const result = await dailyTrackingService.getDailyTracking(
       req.user.id,
-      date as string
+      date as string,
     );
 
     sendResponse(res, {
@@ -85,7 +83,7 @@ export class DailyTrackingController {
       req.user.id,
       date,
       id,
-      req.body.food
+      req.body.food,
     );
 
     sendResponse(res, {
@@ -121,19 +119,19 @@ export class DailyTrackingController {
     });
   });
 
+  getFoodSuggestionsController = catchAsync(
+    async (req: Request, res: Response) => {
+      const { search } = req.query;
 
-
- getFoodSuggestionsController = catchAsync(
-  async (req: Request, res: Response) => {
-    const { search } = req.query;
-
-    const result = await dailyTrackingService.getFoodSuggestionsService(search as string);
-    sendResponse(res, {
-      success: true,
-      statusCode: StatusCodes.OK,
-      message: 'Food suggestions retrieved successfully',
-      data: result,
-    });
-  }
-);
+      const result = await dailyTrackingService.getFoodSuggestionsService(
+        search as string,
+      );
+      sendResponse(res, {
+        success: true,
+        statusCode: StatusCodes.OK,
+        message: 'Food suggestions retrieved successfully',
+        data: result,
+      });
+    },
+  );
 }

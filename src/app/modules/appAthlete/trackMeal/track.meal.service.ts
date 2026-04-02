@@ -39,13 +39,14 @@ export class DailyTrackingService {
   async createDailyTracking(payload: {
     userId: string;
     mealNumber: string;
+    date: string;
     food: IFoodItem[];
   }) {
-    const today = new Date().toISOString().split('T')[0];
+    // const today = new Date().toISOString().split('T')[0];
 
     const tracking = await DailyTrackingMealModel.findOne({
       userId: payload.userId,
-      date: today,
+      date: payload.date,
     });
 
     const newMeal = {
@@ -57,7 +58,7 @@ export class DailyTrackingService {
       if (tracking.meals.length >= 7) {
         throw new ApiError(
           StatusCodes.BAD_REQUEST,
-          'Maximum 7 meals allowed per day'
+          'Maximum 7 meals allowed per day',
         );
       }
 
@@ -68,7 +69,7 @@ export class DailyTrackingService {
 
     return DailyTrackingMealModel.create({
       userId: payload.userId,
-      date: today,
+      date: payload.date,
       meals: [newMeal],
     });
   }
@@ -100,8 +101,8 @@ export class DailyTrackingService {
 
     [...dailyTracking, ...weeklyData].forEach(tracking =>
       tracking.meals.forEach(meal =>
-        meal.food.forEach(food => foodNames.add(food.foodNme))
-      )
+        meal.food.forEach(food => foodNames.add(food.foodNme)),
+      ),
     );
 
     const foodDataList = foodNames.size
@@ -134,7 +135,7 @@ export class DailyTrackingService {
           const qty = food.quantity ? +food.quantity : 1;
           const { protein, fats, carbs, calories } = calculateFoodMacros(
             foodData,
-            qty
+            qty,
           );
 
           mealProtein += protein;
@@ -217,7 +218,7 @@ export class DailyTrackingService {
     userId: string,
     date: string,
     mealId: string,
-    food: IFoodItem[]
+    food: IFoodItem[],
   ) {
     console.log(userId, mealId, food);
     const tracking = await DailyTrackingMealModel.findOne({
@@ -267,7 +268,7 @@ export class DailyTrackingService {
 
       if (meal.food.length === 0) {
         const mealIndex = tracking.meals.findIndex(
-          m => m._id?.toString() === mealId
+          m => m._id?.toString() === mealId,
         );
         tracking.meals.splice(mealIndex, 1);
       }
@@ -286,7 +287,7 @@ export class DailyTrackingService {
 
     if (mealId) {
       const mealIndex = tracking.meals.findIndex(
-        m => m._id?.toString() === mealId
+        m => m._id?.toString() === mealId,
       );
       if (mealIndex === -1)
         throw new ApiError(StatusCodes.NOT_FOUND, 'Meal not found');
@@ -306,43 +307,41 @@ export class DailyTrackingService {
     return { message: 'Daily tracking deleted entirely' };
   }
 
-
   async getFoodSuggestionsService(search: string) {
     if (!search) return [];
 
     const foods = await FoodItemModel.find({
-      name: { $regex: search, $options: 'i' } // case insensitive
+      name: { $regex: search, $options: 'i' }, // case insensitive
     })
       .select('name')
       .limit(10);
     return foods;
   }
-  
-async addDailyTrackingService(payload: {
-  userId: string;
-  mealId: string;
-  food: IFoodItem;
-}) {
-  const updatedTracking = await DailyTrackingMealModel.findOneAndUpdate(
-    {
-      userId: payload.userId,
-      "meals._id": payload.mealId, // find specific meal
-    },
-    {
-      $push: {
-        "meals.$.food": payload.food, // push into matched meal
+
+  async addDailyTrackingService(payload: {
+    userId: string;
+    mealId: string;
+    food: IFoodItem;
+  }) {
+    const updatedTracking = await DailyTrackingMealModel.findOneAndUpdate(
+      {
+        userId: payload.userId,
+        'meals._id': payload.mealId, // find specific meal
       },
-    },
-    {
-      new: true, // return updated document
+      {
+        $push: {
+          'meals.$.food': payload.food, // push into matched meal
+        },
+      },
+      {
+        new: true, // return updated document
+      },
+    );
+
+    if (!updatedTracking) {
+      throw new Error('Meal not found');
     }
-  );
 
-  if (!updatedTracking) {
-    throw new Error("Meal not found");
+    return updatedTracking;
   }
-
-  return updatedTracking;
-}
-
 }
