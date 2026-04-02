@@ -7,11 +7,14 @@ import sendResponse from '../../../../shared/sendResponse';
 
 const createWater = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-        const { ...waterData } = req.body;
-        const userId = req.user?.id; 
+    const { ...waterData } = req.body;
+    const userId = req.user?.id;
 
-    const result =
-      await WaterService.createWaterToDB({...waterData, userId});
+    const result = await WaterService.createWaterToDB({
+      ...waterData,
+      userId,
+      date: waterData.date,
+    });
 
     sendResponse(res, {
       success: true,
@@ -19,75 +22,60 @@ const createWater = catchAsync(
       message: 'Water record created successfully',
       data: result,
     });
-  }
+  },
 );
 
-const getAllWater = catchAsync(
-    async (req: Request, res: Response) => {
-    const userId = req.user?.id; 
-    const date = req.query.date as string;
-    const result =
-      await WaterService.getAllWaterFromDB(userId, date);
+const getAllWater = catchAsync(async (req: Request, res: Response) => {
+  const userId = req.user?.id;
+  const date = req.query.date as string;
+  const result = await WaterService.getAllWaterFromDB(userId, date);
 
-    sendResponse(res, {
-      success: true,
-      statusCode: StatusCodes.OK,
-      message: 'Water records retrieved successfully',
-      data: result,
-    });
-  }
-);
+  sendResponse(res, {
+    success: true,
+    statusCode: StatusCodes.OK,
+    message: 'Water records retrieved successfully',
+    data: result,
+  });
+});
 
-const getSingleWater = catchAsync(
-  async (req: Request, res: Response) => {
-    const { id } = req.params;
+const getSingleWater = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
 
-    const result =
-      await WaterService.getSingleWaterFromDB(id);
+  const result = await WaterService.getSingleWaterFromDB(id);
 
-    sendResponse(res, {
-      success: true,
-      statusCode: StatusCodes.OK,
-      message: 'Water record retrieved successfully',
-      data: result,
-    });
-  }
-);
+  sendResponse(res, {
+    success: true,
+    statusCode: StatusCodes.OK,
+    message: 'Water record retrieved successfully',
+    data: result,
+  });
+});
 
-const updateWater = catchAsync(
-  async (req: Request, res: Response) => {
-    const { id } = req.params;
+const updateWater = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
 
-    const result =
-      await WaterService.updateWaterInDB(
-        id,
-        req.body
-      );
+  const result = await WaterService.updateWaterInDB(id, req.body);
 
-    sendResponse(res, {
-      success: true,
-      statusCode: StatusCodes.OK,
-      message: 'Water record updated successfully',
-      data: result,
-    });
-  }
-);
+  sendResponse(res, {
+    success: true,
+    statusCode: StatusCodes.OK,
+    message: 'Water record updated successfully',
+    data: result,
+  });
+});
 
-const deleteWater = catchAsync(
-  async (req: Request, res: Response) => {
-    const { id } = req.params;
+const deleteWater = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
 
-    const result =
-      await WaterService.deleteWaterFromDB(id);
+  const result = await WaterService.deleteWaterFromDB(id);
 
-    sendResponse(res, {
-      success: true,
-      statusCode: StatusCodes.OK,
-      message: 'Water record deleted successfully',
-      data: result,
-    });
-  }
-);
+  sendResponse(res, {
+    success: true,
+    statusCode: StatusCodes.OK,
+    message: 'Water record deleted successfully',
+    data: result,
+  });
+});
 
 export const WaterController = {
   createWater,

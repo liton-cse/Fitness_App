@@ -13,10 +13,11 @@ const getTodayDate = (): string => {
   return swissDate; // YYYY-MM-DD format
 };
 
-const createWaterToDB = async (payload: Omit<IWater, 'date'>) => {
+const createWaterToDB = async (payload: IWater) => {
   const waterData: IWater = {
     ...payload,
-    date: getTodayDate(),
+    date: payload.date,
+    // date: getTodayDate(),
   };
 
   const result = await Water.create(waterData);
