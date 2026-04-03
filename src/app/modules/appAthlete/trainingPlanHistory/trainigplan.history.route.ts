@@ -26,7 +26,7 @@ router.get(
 
 router.get(
   '/:userId',
-  auth(USER_ROLES.COACH, USER_ROLES.SUPER_ADMIN),
+  auth(USER_ROLES.COACH, USER_ROLES.SUPER_ADMIN, USER_ROLES.ATHLETE),
   controller.getTrainingPushDayHistoryById,
 );
 
